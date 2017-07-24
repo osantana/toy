@@ -59,14 +59,14 @@ Your application **MUST** conform to the following endpoint structure and return
 
 ##### Recipes
 
-| Name   | Method      | URL                  | Protected |
-| ---    | ---         | ---                  | ---       |
-| List   | `GET`       | `/recipes`           | ✘         |
-| Create | `POST`      | `/recipes`           | ✓         |
-| Get    | `GET`       | `/recipes/{id}`      | ✘         |
-| Update | `PUT/PATCH` | `/recipes/{id}`      | ✓         |
-| Delete | `DELETE`    | `/recipes/{id}`      | ✓         |
-| Rate   | `PUT/PATCH` | `/recipes/{id}/rate` | ✘         |
+| Name   | Method      | URL                    | Protected |
+| ---    | ---         | ---                    | ---       |
+| List   | `GET`       | `/recipes`             | ✘         |
+| Create | `POST`      | `/recipes`             | ✓         |
+| Get    | `GET`       | `/recipes/{id}`        | ✘         |
+| Update | `PUT/PATCH` | `/recipes/{id}`        | ✓         |
+| Delete | `DELETE`    | `/recipes/{id}`        | ✓         |
+| Rate   | `POST`      | `/recipes/{id}/rating` | ✘         |
 
 An endpoint for recipe search functionality **MUST** also be implemented. The HTTP method and endpoint for this **MUST** be clearly documented.
 
