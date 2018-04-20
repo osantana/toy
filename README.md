@@ -89,7 +89,7 @@ If you need a more visual idea of how the data should be represented, [take a lo
 
 These are some aspects we pay particular attention to:
 
-- You **MUST** use packages, but you **MUST NOT** use a web-app framework or microframework.
+- You **MUST** use packages, but you **MUST NOT** use a web-app framework or microframework. That is, you can use [symfony/dependency-injection](https://packagist.org/packages/symfony/dependency-injection) but not [symfony/symfony](https://packagist.org/packages/symfony/symfony).
 - Your application **MUST** run within the containers. Please provide short setup instructions.
 - The API **MUST** return valid JSON and **MUST** follow the endpoints set out above.
 - You **MUST** write testable code and demonstrate unit testing it (for clarity,  PHPUnit is not considered a framework as per the first point above. We encourage you to use PHPUnit or any other kind of **testing** framework).
