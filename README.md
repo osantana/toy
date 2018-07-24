@@ -20,7 +20,7 @@ We have provided some containers to help build your application in either PHP, G
 
 ### Technology
 
-- Valid PHP 7.1, Go 1.8, or Python 3.6 code
+- Valid PHP 7.2, Go 1.8, or Python 3.6 code
 - Persist data to either Postgres, Redis, or MongoDB (in the provided containers).
     - Postgres connection details:
         - host: `postgres`
