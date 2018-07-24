@@ -1,10 +1,10 @@
-FROM quay.io/hellofresh/php70:7.1
+FROM quay.io/hellofresh/php70:7.2
 
 # Adds nginx configurations
 ADD ./docker/nginx/default.conf   /etc/nginx/sites-available/default
 
 # Environment variables to PHP-FPM
-RUN sed -i -e "s/;clear_env\s*=\s*no/clear_env = no/g" /etc/php/7.1/fpm/pool.d/www.conf
+RUN sed -i -e "s/;clear_env\s*=\s*no/clear_env = no/g" /etc/php/7.2/fpm/pool.d/www.conf
 
 # Set apps home directory.
 ENV APP_DIR /server/http
