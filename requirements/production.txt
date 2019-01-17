@@ -1,0 +1,3 @@
+aiohttp==3.5.4
+prettyconf==1.2.3  # opensource project developed by myself https://github.com/osantana/prettyconf
+gino==0.8.1
