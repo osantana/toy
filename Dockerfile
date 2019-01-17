@@ -6,10 +6,11 @@ RUN mkdir /code
 WORKDIR /code
 
 ADD ./requirements/production.txt /code/
+ADD ./requirements/test.txt /code/
 
 RUN pip install -U --no-cache-dir pip setuptools
-RUN pip install --no-cache-dir -r production.txt
+RUN pip install --no-cache-dir -r test.txt
 
 ADD recipes /code/
 
-CMD ["python3", "recipes/server.py"]
+ENTRYPOINT python3 recipes/server.py

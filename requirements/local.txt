@@ -1,3 +1,2 @@
--r production.txt
-pytest
-pytest-aiohttp
+-r test.txt
+ipython
