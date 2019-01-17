@@ -1,8 +1,8 @@
 from recipes.server import create_app
 
 
-async def test_hello(test_client):
-    client = await test_client(create_app)
+async def test_hello(aiohttp_client):
+    client = await aiohttp_client(create_app)
 
     resp = await client.get('/')
     assert resp.status == 200
