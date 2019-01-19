@@ -9,17 +9,19 @@ class Application:
     def add_route(self, path, handler):
         self.routes.add_route(path, handler)
 
+    def call_handler(self, request: Request) -> Response:
+        path = request.path
+        route = self.routes.match(path)
+        kwargs = route.match(request.path)
+        return route.handler(request, **kwargs)
+
     def __call__(self, environ, start_response):
         request = Request(environ)
+        response = self.call_handler(request)
+        wsgi_response = WSGIResponse(response)
 
-        # TODO: continue from this point...
-        
-        status = '200 OK'
-        output = b'Hello World!\n'
-        response_headers = [('Content-type', 'text/plain'),
-                            ('Content-Length', str(len(output)))]
-        start_response(status, response_headers)
-        return [output]
+        start_response(wsgi_response.status, wsgi_response.headers)
+        return wsgi_response.body
 
 # process Request
 #    method

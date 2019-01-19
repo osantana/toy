@@ -4,6 +4,7 @@ import pytest
 from webtest import TestApp
 
 from recipes.framework.application import Application
+from recipes.framework.http import Response
 
 
 @pytest.fixture
@@ -58,4 +59,6 @@ def binary_content():
 
 @pytest.fixture
 def handler():
-    return lambda r, **kw: (r, kw)
+    def _hello(request, **kwargs):
+        return Response('Hello!', http_content_type='text/plain')
+    return _hello

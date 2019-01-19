@@ -49,3 +49,24 @@ class Response:
                 continue
 
             self.headers[to_title_case(key)] = value
+
+
+class WSGIResponse:
+    def __init__(self, response: Response, charset='utf-8') -> None:
+        self.response = response
+        self.charset = charset
+
+    @property
+    def status(self) -> str:
+        return str(self.response.status)
+
+    @property
+    def headers(self) -> list:
+        headers = []
+        for key, value in self.response.headers.items():
+            headers.append((key, value))
+        return headers
+
+    @property
+    def body(self):
+        return [self.response.data.encode(self.charset)]
