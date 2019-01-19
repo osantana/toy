@@ -1,6 +1,8 @@
 import re
 from urllib.parse import parse_qs
 
+from staty import Ok
+
 
 def upper_case_to_title_case(upper):
     upper = re.sub(r'^HTTP_', '', upper.upper())
@@ -31,3 +33,14 @@ class Request:
                 headers[key] = [value]
 
         self.headers = headers
+
+
+class Response:
+    def __init__(self, data, status=Ok(), headers=None, **kwargs):
+        self.status = status
+
+        if headers is None:
+            headers = {}
+        self.headers = headers
+
+        self.data = data

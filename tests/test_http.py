@@ -1,6 +1,7 @@
 import pytest
+from staty import Ok
 
-from recipes.framework.http import Request, upper_case_to_title_case
+from recipes.framework.http import Request, upper_case_to_title_case, Response
 
 
 @pytest.mark.parametrize('inp,out', [
@@ -28,3 +29,8 @@ def test_http_basic_request(envbuilder, binary_content):
         'Content-Type': ['application/json'],
         'Content-Length': ['4'],
     }
+
+
+def test_basic_basic_response():
+    response = Response("Hello, World!")
+    assert response.status == Ok()

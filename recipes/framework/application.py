@@ -1,13 +1,13 @@
-from recipes.framework.http import Request
+from .http import Request, Response, WSGIResponse
+from .routing import Routes
 
 
 class Application:
     def __init__(self):
-        self.routes = {}
+        self.routes = Routes()
 
-    def add_route(self, route, handler):
-        route = '/{}'.format(route.lstrip('/'))
-        self.routes[route] = handler
+    def add_route(self, path, handler):
+        self.routes.add_route(path, handler)
 
     def __call__(self, environ, start_response):
         request = Request(environ)

@@ -9,7 +9,7 @@ from recipes.framework.application import Application
 @pytest.fixture
 def application():
     app = Application()
-    app.add_route(r'/', lambda req: req)
+    app.add_route(r'^/$', lambda req: req)
     return app
 
 
@@ -54,3 +54,8 @@ def binary_content():
     content.write(b'Test')
     content.seek(0)
     return content
+
+
+@pytest.fixture
+def handler():
+    return lambda r, **kw: (r, kw)

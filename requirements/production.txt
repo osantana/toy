@@ -1,1 +1,5 @@
-prettyconf==1.2.3  # opensource project developed by myself https://github.com/osantana/prettyconf
+# opensource project developed by myself https://github.com/osantana/prettyconf
+prettyconf==1.2.3
+
+# opensource project developed by myselg https://github.com/osantana/staty
+staty==1.1.1

@@ -1,0 +1,2 @@
+class InvalidRouteHandler(Exception):
+    pass
