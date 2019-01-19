@@ -4,11 +4,10 @@ from urllib.parse import parse_qs
 from staty import Ok
 
 
-def upper_case_to_title_case(upper):
-    upper = re.sub(r'^HTTP_', '', upper.upper())
-
-    splitted = [(w if w == 'WWW' else w.title()) for w in upper.split('_')]
-
+def to_title_case(text):
+    text = text.upper()
+    text = re.sub(r'^HTTP_', '', text.upper())
+    splitted = [(w if w == 'WWW' else w.title()) for w in text.split('_')]
     return '-'.join(splitted)
 
 
@@ -25,7 +24,7 @@ class Request:
             if not key.startswith('HTTP_'):
                 continue
 
-            key = upper_case_to_title_case(key)
+            key = to_title_case(key)
 
             if key in headers:
                 headers[key].append(value)
@@ -44,3 +43,9 @@ class Response:
         self.headers = headers
 
         self.data = data
+
+        for key, value in kwargs.items():
+            if not key.startswith('http_'):
+                continue
+
+            self.headers[to_title_case(key)] = value

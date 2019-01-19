@@ -1,7 +1,7 @@
 import pytest
 from staty import Ok
 
-from recipes.framework.http import Request, upper_case_to_title_case, Response
+from recipes.framework.http import Request, Response, to_title_case
 
 
 @pytest.mark.parametrize('inp,out', [
@@ -10,7 +10,7 @@ from recipes.framework.http import Request, upper_case_to_title_case, Response
     ('HTTP_WWW_AUTHENTICATE', 'WWW-Authenticate'),
 ])
 def test_util_upper_case_headers_to_title_case(inp, out):
-    assert upper_case_to_title_case(inp) == out
+    assert to_title_case(inp) == out
 
 
 def test_http_basic_request(envbuilder, binary_content):
@@ -32,5 +32,10 @@ def test_http_basic_request(envbuilder, binary_content):
 
 
 def test_basic_basic_response():
-    response = Response("Hello, World!")
+    response = Response('Hello, World!')
     assert response.status == Ok()
+
+
+def test_response_with_extra_http_headers():
+    response = Response('', ignored_arg='', http_www_authenticate='Basic realm="Test Endpoint"')
+    assert response.headers['WWW-Authenticate'] == 'Basic realm="Test Endpoint"'
