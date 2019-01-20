@@ -5,9 +5,23 @@ from .routing import Routes
 
 
 class Application:
-    def __init__(self):
+    def __init__(self, debug=False):
         self.routes = Routes()
-        self.debug = False
+        self.debug = debug
+        self._extras = {}
+
+        self.initialize()
+
+    def initialize(self):
+        pass
+
+    def add(self, key, value):
+        if key in self._extras:
+            raise KeyError(f'Key {key} already exists')
+        self._extras[key] = value
+
+    def get(self, key, default=None):
+        return self._extras.get(key, default)
 
     def add_route(self, path, handler):
         self.routes.add_route(path, handler)
