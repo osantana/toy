@@ -19,7 +19,10 @@ def client(application):
     return TestApp(application)
 
 
-def _environ_builder(method, path, input_stream, **kwargs):
+def _environ_builder(method, path, input_stream=None, **kwargs):
+    if input_stream is None:
+        input_stream = BytesIO()
+
     start_pos = input_stream.tell()
     input_stream.seek(0, 2)
     end_pos = input_stream.tell()
