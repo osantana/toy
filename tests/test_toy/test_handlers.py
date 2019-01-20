@@ -7,8 +7,8 @@ from toy.handlers import Handler
 from toy.http import Request
 
 
-def test_basic_dispatcher_handler(envbuilder):
-    request = Request(envbuilder("GET", "/test"))
+def test_basic_dispatcher_handler(application, envbuilder):
+    request = Request(application, envbuilder("GET", "/test"))
     handler = Handler()
 
     mock = Mock()
@@ -19,8 +19,8 @@ def test_basic_dispatcher_handler(envbuilder):
     mock.assert_called_once_with(request)
 
 
-def test_basic_allowed_method_call(envbuilder):
-    request = Request(envbuilder("GET", "/test"))
+def test_basic_allowed_method_call(application, envbuilder):
+    request = Request(application, envbuilder("GET", "/test"))
     handler = Handler()
 
     handler.get = Mock()
@@ -30,8 +30,8 @@ def test_basic_allowed_method_call(envbuilder):
     handler.get.assert_called_once_with(request)
 
 
-def test_error_not_allowed_method_call(envbuilder):
-    request = Request(envbuilder("POST", "/test"))
+def test_error_not_allowed_method_call(application, envbuilder):
+    request = Request(application, envbuilder("POST", "/test"))
     handler = Handler()
 
     handler.get = Mock()

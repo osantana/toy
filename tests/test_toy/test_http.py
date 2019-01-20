@@ -13,14 +13,14 @@ def test_util_upper_case_headers_to_title_case(inp, out):
     assert to_title_case(inp) == out
 
 
-def test_http_basic_request(envbuilder, binary_content):
+def test_http_basic_request(application, envbuilder, binary_content):
     env = envbuilder(
         method='GET',
         path='/',
         query_string='spam=1&eggs=2',
         input_stream=binary_content,
     )
-    request = Request(env)
+    request = Request(application, env)
 
     assert request.method == 'GET'
     assert request.path == '/'
@@ -32,12 +32,12 @@ def test_http_basic_request(envbuilder, binary_content):
     assert repr(request) == '<Request GET />'
 
 
-def test_http_request_lower_case_method(envbuilder, binary_content):
+def test_http_request_lower_case_method(application, envbuilder, binary_content):
     env = envbuilder(
         method='get',
         path='/',
     )
-    request = Request(env)
+    request = Request(application, env)
     assert request.method == 'GET'
 
 
