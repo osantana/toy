@@ -31,6 +31,15 @@ def test_http_basic_request(envbuilder, binary_content):
     }
 
 
+def test_http_request_lower_case_method(envbuilder, binary_content):
+    env = envbuilder(
+        method='get',
+        path='/',
+    )
+    request = Request(env)
+    assert request.method == 'GET'
+
+
 def test_basic_basic_response():
     response = Response('Hello, World!')
     assert response.status == Ok()

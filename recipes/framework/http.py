@@ -13,7 +13,7 @@ def to_title_case(text):
 
 class Request:
     def __init__(self, environ):
-        self.method = environ.get('REQUEST_METHOD', 'GET')
+        self.method = environ.get('REQUEST_METHOD', 'GET').upper()
         self.path = environ.get('PATH_INFO', '/')
 
         query_string = environ.get('QUERY_STRING', '')
