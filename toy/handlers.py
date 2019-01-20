@@ -1,4 +1,4 @@
-from staty import MethodNotAllowedException
+from staty import MethodNotAllowedException, NotFound, InternalServerError
 
 from .http import Request, Response
 
@@ -16,3 +16,13 @@ class Handler:
 
     def __call__(self, request, **kwargs):
         return self.dispatch(request, **kwargs)
+
+
+# noinspection PyUnusedLocal
+def not_found_handler(request, **kwargs):
+    return Response(f'URL {request.path} not found.', NotFound())
+
+
+# noinspection PyUnusedLocal
+def internal_error_handler(request, **kwargs):
+    return Response("Internal Server Error", InternalServerError())

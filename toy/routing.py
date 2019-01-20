@@ -1,5 +1,6 @@
 import re
 
+from .handlers import not_found_handler, internal_error_handler
 from .exceptions import InvalidRouteHandler
 
 
@@ -23,7 +24,12 @@ class Route:
 
 
 class Routes:
-    def __init__(self, routes=None):
+    def __init__(
+            self,
+            routes=None,
+            not_found=not_found_handler,
+            internal_error=internal_error_handler,
+    ):
         self._routes = {}
 
         if routes is None:
@@ -31,6 +37,9 @@ class Routes:
 
         for route in routes:
             self.add(route)
+
+        self.not_found = not_found
+        self.internal_error = internal_error
 
     def __len__(self):
         return len(self._routes)

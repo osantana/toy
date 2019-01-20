@@ -1,7 +1,7 @@
 import re
 from urllib.parse import parse_qs
 
-from staty import Ok
+from staty import NotFound, Ok
 
 
 def to_title_case(text):
@@ -33,6 +33,9 @@ class Request:
 
         self.headers = headers
 
+    def __repr__(self):
+        return f'<Request {self.method} {self.path}>'
+
 
 class Response:
     def __init__(self, data, status=Ok(), headers=None,
@@ -52,6 +55,15 @@ class Response:
                 continue
 
             self.headers[to_title_case(key)] = value
+
+    def __repr__(self):
+        return f'<Response {str(self.status)}>'
+
+
+class NotFoundResponse(Response):
+    def __init__(self, data, headers=None, **kwargs):
+        super().__init__(data, headers=headers, **kwargs)
+        self.status = NotFound()
 
 
 class WSGIResponse:
