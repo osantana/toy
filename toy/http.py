@@ -35,7 +35,8 @@ class Request:
 
 
 class Response:
-    def __init__(self, data, status=Ok(), headers=None, **kwargs):
+    def __init__(self, data, status=Ok(), headers=None,
+                 content_type='text/html', **kwargs):
         self.status = status
 
         if headers is None:
@@ -43,6 +44,8 @@ class Response:
         self.headers = headers
 
         self.data = data
+
+        self.headers['Content-Type'] = content_type
 
         for key, value in kwargs.items():
             if not key.startswith('http_'):

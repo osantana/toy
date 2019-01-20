@@ -64,5 +64,5 @@ def binary_content():
 def handler():
     # noinspection PyUnusedLocal
     def _hello(request, **kwargs):
-        return Response('Hello!', http_content_type='text/plain')
+        return Response('Hello!', content_type='text/plain')
     return _hello
