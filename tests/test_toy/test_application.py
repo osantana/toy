@@ -1,5 +1,7 @@
 from unittest.mock import Mock
 
+import pytest
+from staty import BadRequestException
 from webtest import TestApp
 
 from toy.application import Application
@@ -23,6 +25,51 @@ def test_basic_request_to_app(application, handler):
     assert response.status == '200 OK'
     assert response.headers['Content-Type'] == 'text/plain'
     assert response.body == 'Hello!'.encode('utf-8')
+
+
+def test_request_to_not_found_route(application, handler):
+    app = TestApp(application)
+
+    response = app.get('/not-found', status=404)
+
+    assert response.status == '404 Not Found'
+    assert response.body == 'URL /not-found not found.'.encode('utf-8')
+
+
+def test_request_to_http_error_route(application):
+    # noinspection PyUnusedLocal
+    def handler(request, **kwargs):
+        raise BadRequestException('Missing required field "foo".')
+
+    application.add_route(r'^/bad-request', handler)
+
+    app = TestApp(application)
+
+    response = app.get('/bad-request', status=400)
+
+    assert response.status == '400 Bad Request'
+    assert response.body == 'Missing required field "foo".'.encode('utf-8')
+
+
+def test_request_to_internal_error_route(application):
+    application.add_route(r'^/error', lambda r: 1 / 0)  # Division by zero
+
+    app = TestApp(application)
+
+    response = app.get('/error', status=500)
+
+    assert response.status == '500 Internal Server Error'
+    assert response.body == 'Internal Server Error'.encode('utf-8')
+
+
+def test_request_to_internal_error_route_debug_mode(application):
+    application.add_route(r'^/error', lambda r: 1 / 0)  # Division by zero
+    application.debug = True
+
+    app = TestApp(application)
+
+    with pytest.raises(ZeroDivisionError):
+        app.get('/error', status=500)
 
 
 def test_application_call_handler(application, envbuilder):

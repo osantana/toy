@@ -7,6 +7,7 @@ from .routing import Routes
 class Application:
     def __init__(self):
         self.routes = Routes()
+        self.debug = False
 
     def add_route(self, path, handler):
         self.routes.add_route(path, handler)
@@ -20,10 +21,17 @@ class Application:
 
         kwargs = route.match(request.path)
 
+        # noinspection PyBroadException
         try:
             response = route.handler(request, **kwargs)
         except HTTPError as ex:
-            response = Response(str(ex.status), request=request)
+            response = Response(str(ex), status=ex.status)
+
+        # We need to intercept all exceptions to return 500 reponse
+        except Exception:
+            if self.debug:
+                raise
+            return self.routes.internal_error(request)
 
         return response
 

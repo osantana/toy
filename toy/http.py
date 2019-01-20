@@ -60,12 +60,6 @@ class Response:
         return f'<Response {str(self.status)}>'
 
 
-class NotFoundResponse(Response):
-    def __init__(self, data, headers=None, **kwargs):
-        super().__init__(data, headers=headers, **kwargs)
-        self.status = NotFound()
-
-
 class WSGIResponse:
     def __init__(self, response: Response, charset='utf-8') -> None:
         self.response = response
