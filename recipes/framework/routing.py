@@ -1,6 +1,6 @@
 import re
 
-from recipes.framework.exceptions import InvalidRouteHandler
+from .exceptions import InvalidRouteHandler
 
 
 class Route:

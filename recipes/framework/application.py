@@ -22,18 +22,3 @@ class Application:
 
         start_response(wsgi_response.status, wsgi_response.headers)
         return wsgi_response.body
-
-# process Request
-#    method
-#    path
-#    querystrings
-#    headers
-#    content
-# Application
-#    route
-#    dispatch
-#    return (response or exception)
-# process Response
-#    status (staty)
-#    headers
-#    content
