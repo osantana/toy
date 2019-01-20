@@ -1,7 +1,8 @@
+import json
 import re
 from urllib.parse import parse_qs
 
-from staty import NotFound, Ok
+from staty import Ok
 
 
 def to_title_case(text):
@@ -54,6 +55,12 @@ class Response:
 
     def __repr__(self):
         return f'<Response {str(self.status)}>'
+
+
+class JSONResponse(Response):
+    def __init__(self, data, status=Ok(), headers=None, **kwargs):
+        super().__init__(data, status, headers, content_type='application/json', **kwargs)
+        self.data = json.dumps(self.data)
 
 
 class WSGIResponse:
