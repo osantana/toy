@@ -3,3 +3,5 @@ prettyconf==1.2.3
 
 # opensource project developed by myselg https://github.com/osantana/staty
 staty==1.2.2
+
+dj-database-url==0.5.0
