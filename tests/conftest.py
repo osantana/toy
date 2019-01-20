@@ -62,6 +62,7 @@ def binary_content():
 
 @pytest.fixture
 def handler():
+    # noinspection PyUnusedLocal
     def _hello(request, **kwargs):
         return Response('Hello!', http_content_type='text/plain')
     return _hello
