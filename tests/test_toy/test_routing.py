@@ -2,8 +2,8 @@ import re
 
 import pytest
 
-from recipes.framework.exceptions import InvalidRouteHandler
-from recipes.framework.routing import Route, Routes
+from toy.exceptions import InvalidRouteHandler
+from toy.routing import Route, Routes
 
 
 def test_basic_route(handler):

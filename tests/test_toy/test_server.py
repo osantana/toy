@@ -1,6 +1,6 @@
 from unittest.mock import Mock
 
-from recipes.framework.server import HTTPServer
+from toy.server import HTTPServer
 
 
 def test_basic_server(application):

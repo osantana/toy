@@ -1,7 +1,7 @@
 import pytest
 from staty import Ok
 
-from recipes.framework.http import Request, Response, to_title_case
+from toy.http import Request, Response, to_title_case
 
 
 @pytest.mark.parametrize('inp,out', [

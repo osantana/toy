@@ -3,8 +3,8 @@ from io import BytesIO
 import pytest
 from webtest import TestApp
 
-from recipes.framework.application import Application
-from recipes.framework.http import Response
+from toy.application import Application
+from toy.http import Response
 
 
 @pytest.fixture

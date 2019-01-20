@@ -3,8 +3,8 @@ from unittest.mock import Mock
 import pytest
 from staty import MethodNotAllowedException
 
-from recipes.framework.handlers import Handler
-from recipes.framework.http import Request
+from toy.handlers import Handler
+from toy.http import Request
 
 
 def test_basic_dispatcher_handler(envbuilder):

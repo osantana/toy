@@ -2,8 +2,8 @@ from unittest.mock import Mock
 
 from webtest import TestApp
 
-from recipes.framework.application import Application
-from recipes.framework.http import Request
+from toy.application import Application
+from toy.http import Request
 
 
 def test_basic_application():
