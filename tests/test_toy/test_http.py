@@ -29,6 +29,7 @@ def test_http_basic_request(envbuilder, binary_content):
         'Content-Type': ['application/json'],
         'Content-Length': ['4'],
     }
+    assert repr(request) == '<Request GET />'
 
 
 def test_http_request_lower_case_method(envbuilder, binary_content):
@@ -43,6 +44,7 @@ def test_http_request_lower_case_method(envbuilder, binary_content):
 def test_basic_basic_response():
     response = Response('Hello, World!')
     assert response.status == Ok()
+    assert repr(response) == '<Response 200 OK>'
 
 
 def test_response_with_extra_http_headers():

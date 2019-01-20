@@ -20,7 +20,7 @@ def test_basic_request_to_app(application, handler):
 
     app = TestApp(application)
 
-    response = app.get("/test")
+    response = app.get('/test')
 
     assert response.status == '200 OK'
     assert response.headers['Content-Type'] == 'text/plain'

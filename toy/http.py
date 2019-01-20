@@ -25,11 +25,7 @@ class Request:
                 continue
 
             key = to_title_case(key)
-
-            if key in headers:
-                headers[key].append(value)
-            else:
-                headers[key] = [value]
+            headers[key] = [value]
 
         self.headers = headers
 
