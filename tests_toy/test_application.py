@@ -36,6 +36,14 @@ def test_add_application_extension(application):
     assert application.get_extension('mock_extension') == extension
 
 
+def test_fail_add_application_extension_twice(application):
+    extension = Mock()
+    application.add_extension('mock_extension', extension)
+
+    with pytest.raises(KeyError):
+        application.add_extension('mock_extension', extension)
+
+
 def test_request_to_not_found_route(application, handler):
     app = TestApp(application)
 
