@@ -1,8 +1,9 @@
 import re
+from io import BytesIO
 from urllib.parse import parse_qs
 
 import accept
-from staty import Ok
+from staty import HTTPStatus, Ok
 
 
 def to_title_case(text):
@@ -75,17 +76,14 @@ class Request:
 
 
 class Response:
-    def __init__(self, data: str, status=Ok(), headers=None,
-                 content_type='application/octet-stream', **kwargs):
+    def __init__(self, data: str, status: HTTPStatus = Ok(), headers=None,
+                 content_type='application/octet-stream; charset=iso-8859-1', **kwargs):
         self.status = status
+        self.data = data
 
         if headers is None:
             headers = {}
         self.headers = headers
-
-        self.data = data
-
-        self.headers['Content-Type'] = content_type
 
         for key, value in kwargs.items():
             if not key.startswith('http_'):
@@ -93,14 +91,23 @@ class Response:
 
             self.headers[to_title_case(key)] = value
 
+        content_type, charset = parse_content_type(content_type)
+        self.content_type = content_type
+        self.charset = charset
+
+        self.headers['Content-Type'] = f'{content_type}; charset={charset}'
+
+    @property
+    def content_stream(self):
+        return BytesIO(self.data.encode(self.charset))
+
     def __repr__(self):
         return f'<Response {str(self.status)}>'
 
 
 class WSGIResponse:
-    def __init__(self, response: Response, charset='utf-8') -> None:
+    def __init__(self, response: Response) -> None:
         self.response = response
-        self.charset = charset
 
     @property
     def status(self) -> str:
@@ -115,4 +122,4 @@ class WSGIResponse:
 
     @property
     def body(self):
-        return [self.response.data.encode(self.charset)]
+        return [self.response.content_stream.read()]

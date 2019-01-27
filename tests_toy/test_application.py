@@ -24,7 +24,7 @@ def test_basic_request_to_app(application, handler):
     response = app.get('/test')
 
     assert response.status == '200 OK'
-    assert response.headers['Content-Type'] == 'text/plain'
+    assert response.headers['Content-Type'] == 'text/plain; charset=utf-8'
     assert response.body == 'Hello!'.encode('utf-8')
 
 

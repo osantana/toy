@@ -1,3 +1,5 @@
+from io import BytesIO
+
 import pytest
 from accept import MediaType
 from staty import Ok
@@ -47,10 +49,21 @@ def test_http_request_lower_case_method(application, envbuilder, binary_content)
     assert request.method == 'GET'
 
 
-def test_basic_basic_response():
+def test_basic_response():
     response = Response('Hello, World!')
     assert response.status == Ok()
     assert repr(response) == '<Response 200 OK>'
+    assert response.data == 'Hello, World!'
+    assert response.content_type == 'application/octet-stream'
+    assert response.charset == 'iso-8859-1'
+    assert response.content_stream.read() == BytesIO('Hello, World!'.encode('iso-8859-1')).read()
+
+
+def test_response_with_different_content_type():
+    response = Response('Hello, World!', content_type='text/plain; charset=utf-8')
+    assert response.data == 'Hello, World!'
+    assert response.content_type == 'text/plain'
+    assert response.charset == 'utf-8'
 
 
 def test_response_with_extra_http_headers():
