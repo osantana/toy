@@ -1,15 +1,28 @@
-import json
 import re
 from urllib.parse import parse_qs
 
+import accept
 from staty import Ok
 
 
 def to_title_case(text):
     text = text.upper()
-    text = re.sub(r'^HTTP_', '', text.upper())
+    text = re.sub(r'^HTTP_', '', text)
     splitted = [(w if w == 'WWW' else w.title()) for w in text.split('_')]
     return '-'.join(splitted)
+
+
+def parse_content_type(content_type, default_charset='iso-8859-1'):
+    content_type = content_type.lower()
+    charset = default_charset
+
+    content_type_args = content_type.split(';')
+    for arg in content_type_args:
+        arg = arg.strip()
+        if arg.startswith('charset='):
+            charset = arg.replace('charset=', '', 1)
+
+    return content_type_args[0], charset
 
 
 class Request:
@@ -27,9 +40,21 @@ class Request:
                 continue
 
             key = to_title_case(key)
-            headers[key] = [value]
+            headers[key] = value
 
         self.headers = headers
+
+        content_type = self.headers.pop('Content-Type', 'application/octet-stream')
+        content_type, charset = parse_content_type(content_type)
+
+        self.content_type = content_type
+        self.charset = charset
+
+        self.accept = accept.parse(self.headers.pop('Accept', 'application/octet-stream'))
+        accept_charset = self.headers.pop('Accept-Charset', 'iso-8859-1, utf-8;q=0.7').lower()
+        self.accept_charset = accept.parse(accept_charset)
+
+        self.args = {}
 
     def __repr__(self):
         return f'<Request {self.method} {self.path}>'
@@ -37,7 +62,7 @@ class Request:
 
 class Response:
     def __init__(self, data, status=Ok(), headers=None,
-                 content_type='text/html', **kwargs):
+                 content_type='application/octet-stream', **kwargs):
         self.status = status
 
         if headers is None:

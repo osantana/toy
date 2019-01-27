@@ -1,4 +1,5 @@
 import pytest
+from accept import MediaType
 from staty import Ok
 
 from toy.http import JSONResponse, Request, Response, to_title_case
@@ -26,10 +27,13 @@ def test_http_basic_request(application, envbuilder, binary_content):
     assert request.path == '/'
     assert request.query_string == {'spam': ['1'], 'eggs': ['2']}
     assert request.headers == {
-        'Content-Type': ['application/json'],
-        'Content-Length': ['4'],
+        'Content-Length': '4',
     }
     assert repr(request) == '<Request GET />'
+    assert request.content_type == 'application/json'
+    assert request.charset == 'utf-8'
+    assert request.accept == [MediaType('application/json')]
+    assert request.accept_charset == [MediaType('iso-8859-1'), MediaType('utf-8', q=0.7)]
 
 
 def test_http_request_lower_case_method(application, envbuilder, binary_content):

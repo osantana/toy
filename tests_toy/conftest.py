@@ -33,11 +33,15 @@ def _environ_builder(method, path, input_stream=None, **kwargs):
         'REQUEST_METHOD': method.upper(),
         'PATH_INFO': path,
         'QUERY_STRING': kwargs.get('query_string', ''),
-        'CONTENT_TYPE': kwargs.get('content_type', 'application/json'),
+        'ACCEPT': kwargs.get('accept', 'application/json'),
+        'ACCEPT_CHARSET': kwargs.get('accept_charset', 'ISO-8859-1, utf-8;q=0.7'),
+        'CONTENT_TYPE': kwargs.get('content_type', 'application/json; charset=utf-8'),
         'CONTENT_LENGTH': str(content_length),
         'wsgi.input': input_stream,
     }
 
+    result['HTTP_ACCEPT'] = result['ACCEPT']
+    result['HTTP_ACCEPT_CHARSET'] = result['ACCEPT_CHARSET']
     result['HTTP_CONTENT_TYPE'] = result['CONTENT_TYPE']
     result['HTTP_CONTENT_LENGTH'] = result['CONTENT_LENGTH']
 
