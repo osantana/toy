@@ -27,6 +27,14 @@ def test_basic_request_to_app(application, handler):
     assert response.body == 'Hello!'.encode('utf-8')
 
 
+def test_add_application_extension(application):
+    extension = Mock()
+    application.add_extension('mock_extension', extension)
+
+    assert extension.application == application
+    assert application.get_extension('mock_extension') == extension
+
+
 def test_request_to_not_found_route(application, handler):
     app = TestApp(application)
 

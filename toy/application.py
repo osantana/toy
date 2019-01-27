@@ -8,20 +8,21 @@ class Application:
     def __init__(self, debug=False):
         self.routes = Routes()
         self.debug = debug
-        self._extras = {}
+        self.extensions = {}
 
         self.initialize()
 
     def initialize(self):
         pass
 
-    def add(self, key, value):
-        if key in self._extras:
+    def add_extension(self, key, value):
+        if key in self.extensions:
             raise KeyError(f'Key {key} already exists')
-        self._extras[key] = value
+        self.extensions[key] = value
+        value.application = self
 
-    def get(self, key, default=None):
-        return self._extras.get(key, default)
+    def get_extension(self, key, default=None):
+        return self.extensions.get(key, default)
 
     def add_route(self, path, handler):
         self.routes.add_route(path, handler)
