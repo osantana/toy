@@ -83,12 +83,6 @@ class Response:
         return f'<Response {str(self.status)}>'
 
 
-class JSONResponse(Response):
-    def __init__(self, data, status=Ok(), headers=None, **kwargs):
-        super().__init__(data, status, headers, content_type='application/json', **kwargs)
-        self.data = json.dumps(self.data)
-
-
 class WSGIResponse:
     def __init__(self, response: Response, charset='utf-8') -> None:
         self.response = response

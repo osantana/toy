@@ -2,7 +2,7 @@ import pytest
 from accept import MediaType
 from staty import Ok
 
-from toy.http import JSONResponse, Request, Response, to_title_case
+from toy.http import Request, Response, to_title_case
 
 
 @pytest.mark.parametrize('inp,out', [
@@ -54,20 +54,3 @@ def test_basic_basic_response():
 def test_response_with_extra_http_headers():
     response = Response('', ignored_arg='', http_www_authenticate='Basic realm="Test Endpoint"')
     assert response.headers['WWW-Authenticate'] == 'Basic realm="Test Endpoint"'
-
-
-def test_json_response():
-    response = JSONResponse(
-        {
-            'string': 'string',
-            'number': 1,
-            'boolean': True,
-            'null': None,
-        }
-    )
-
-    assert response.headers['Content-Type'] == 'application/json'
-    assert response.data == ('{"string": "string", '
-                             '"number": 1, '
-                             '"boolean": true, '
-                             '"null": null}')
