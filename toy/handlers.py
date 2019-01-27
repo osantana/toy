@@ -1,4 +1,4 @@
-from staty import MethodNotAllowedException, NotFound, InternalServerError
+from staty import InternalServerError, MethodNotAllowedException, NotFound
 
 from .http import Request, Response
 
@@ -12,10 +12,10 @@ class Handler:
         except AttributeError:
             raise MethodNotAllowedException(f'Method {method} not allowed')
 
-        return handler(request, **kwargs)
+        return handler(request)
 
-    def __call__(self, request, **kwargs):
-        return self.dispatch(request, **kwargs)
+    def __call__(self, request):
+        return self.dispatch(request)
 
 
 # noinspection PyUnusedLocal
