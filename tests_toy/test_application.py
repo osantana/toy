@@ -87,4 +87,5 @@ def test_application_call_handler(application, envbuilder):
     request = Request(application, envbuilder('GET', '/test-argument'))
     application.call_handler(request)
 
-    handler.assert_called_once_with(request, arg='test-argument')
+    handler.assert_called_once_with(request)
+    assert request.args == {'arg': 'test-argument'}

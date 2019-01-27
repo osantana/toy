@@ -35,10 +35,11 @@ class Application:
             return self.routes.not_found(request)
 
         kwargs = route.match(request.path)
+        request.args.update(kwargs)
 
         # noinspection PyBroadException
         try:
-            response = route.handler(request, **kwargs)
+            response = route.handler(request)
         except HTTPError as ex:
             response = Response(str(ex), status=ex.status)
 
