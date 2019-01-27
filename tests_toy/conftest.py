@@ -23,6 +23,12 @@ def _environ_builder(method, path, input_stream=None, **kwargs):
     if input_stream is None:
         input_stream = BytesIO()
 
+    if isinstance(input_stream, str):
+        input_stream = BytesIO(input_stream.encode('iso-8859-1'))
+
+    if isinstance(input_stream, bytes):
+        input_stream = BytesIO(input_stream)
+
     start_pos = input_stream.tell()
     input_stream.seek(0, 2)
     end_pos = input_stream.tell()
@@ -34,8 +40,8 @@ def _environ_builder(method, path, input_stream=None, **kwargs):
         'PATH_INFO': path,
         'QUERY_STRING': kwargs.get('query_string', ''),
         'ACCEPT': kwargs.get('accept', 'application/json'),
-        'ACCEPT_CHARSET': kwargs.get('accept_charset', 'ISO-8859-1, utf-8;q=0.7'),
-        'CONTENT_TYPE': kwargs.get('content_type', 'application/json; charset=utf-8'),
+        'ACCEPT_CHARSET': kwargs.get('accept_charset', 'iso-8859-1, utf-8;q=0.7'),
+        'CONTENT_TYPE': kwargs.get('content_type', 'application/json; charset=iso-8859-1'),
         'CONTENT_LENGTH': str(content_length),
         'wsgi.input': input_stream,
     }

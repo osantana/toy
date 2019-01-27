@@ -31,9 +31,11 @@ def test_http_basic_request(application, envbuilder, binary_content):
     }
     assert repr(request) == '<Request GET />'
     assert request.content_type == 'application/json'
-    assert request.charset == 'utf-8'
+    assert request.charset == 'iso-8859-1'
     assert request.accept == [MediaType('application/json')]
     assert request.accept_charset == [MediaType('iso-8859-1'), MediaType('utf-8', q=0.7)]
+    assert request.content_stream.read() == b'Test'
+    assert request.data == 'Test'
 
 
 def test_http_request_lower_case_method(application, envbuilder, binary_content):

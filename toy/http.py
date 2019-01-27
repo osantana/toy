@@ -56,12 +56,26 @@ class Request:
 
         self.args = {}
 
+        self.content_stream = environ['wsgi.input']
+        self.content_stream.seek(0)
+        self._cached_data = ""
+
+    @property
+    def data(self):
+        if not self._cached_data:
+            prev = self.content_stream.tell()
+            self.content_stream.seek(0)
+            content = self.content_stream.read()
+            self.content_stream.seek(prev)
+            self._cached_data = content.decode(self.charset)
+        return self._cached_data
+
     def __repr__(self):
         return f'<Request {self.method} {self.path}>'
 
 
 class Response:
-    def __init__(self, data, status=Ok(), headers=None,
+    def __init__(self, data: str, status=Ok(), headers=None,
                  content_type='application/octet-stream', **kwargs):
         self.status = status
 
