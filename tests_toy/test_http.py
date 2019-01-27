@@ -50,20 +50,21 @@ def test_http_request_lower_case_method(application, envbuilder, binary_content)
 
 
 def test_basic_response():
-    response = Response('Hello, World!')
+    response = Response('Olá mundo!')
     assert response.status == Ok()
     assert repr(response) == '<Response 200 OK>'
-    assert response.data == 'Hello, World!'
+    assert response.data == 'Olá mundo!'
     assert response.content_type == 'application/octet-stream'
     assert response.charset == 'iso-8859-1'
-    assert response.content_stream.read() == BytesIO('Hello, World!'.encode('iso-8859-1')).read()
+    assert response.content_stream.read() == BytesIO('Olá mundo!'.encode('iso-8859-1')).read()
 
 
 def test_response_with_different_content_type():
-    response = Response('Hello, World!', content_type='text/plain; charset=utf-8')
-    assert response.data == 'Hello, World!'
+    response = Response('Olá mundo!', content_type='text/plain; charset=utf-8')
+    assert response.data == 'Olá mundo!'
     assert response.content_type == 'text/plain'
     assert response.charset == 'utf-8'
+    assert response.content_stream.read() == BytesIO('Olá mundo!'.encode('utf-8')).read()
 
 
 def test_response_with_extra_http_headers():
