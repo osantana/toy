@@ -4,17 +4,19 @@ from .http import Request, Response
 
 
 class Handler:
-    def dispatch(self, request: Request, **kwargs) -> Response:
-        method = request.method
-
+    def _find_handler(self, request):
+        method = request.method.upper()
         try:
             handler = getattr(self, method.lower())
         except AttributeError:
             raise MethodNotAllowedException(f'Method {method} not allowed')
+        return handler
 
+    def dispatch(self, request: Request) -> Response:
+        handler = self._find_handler(request)
         return handler(request)
 
-    def __call__(self, request):
+    def __call__(self, request: Request) -> Response:
         return self.dispatch(request)
 
 
