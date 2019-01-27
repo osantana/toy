@@ -14,7 +14,7 @@ class Recipes(Application):
         self.add_route(r'/recipes/(?P<id>\d+)/rating', handlers.Recipe())
 
         db_config = config('DATABASE_URL', cast=dj_database_url.parse)
-        self.add('storage', Storage(db_config))
+        self.add_extension('storage', Storage(db_config))
 
 
 def get_app():
