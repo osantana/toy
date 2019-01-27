@@ -8,8 +8,8 @@ from toy.http import Request
 
 
 def test_basic_dispatcher_handler(application, envbuilder):
-    request = Request(application, envbuilder("GET", "/test"))
-    handler = Handler()
+    request = Request(envbuilder("GET", "/test"))
+    handler = Handler(application)
 
     mock = Mock()
     handler.dispatch = mock
@@ -20,8 +20,8 @@ def test_basic_dispatcher_handler(application, envbuilder):
 
 
 def test_basic_allowed_method_call(application, envbuilder):
-    request = Request(application, envbuilder("GET", "/test"))
-    handler = Handler()
+    request = Request(envbuilder("GET", "/test"))
+    handler = Handler(application)
 
     handler.get = Mock()
 
@@ -31,8 +31,8 @@ def test_basic_allowed_method_call(application, envbuilder):
 
 
 def test_error_not_allowed_method_call(application, envbuilder):
-    request = Request(application, envbuilder("POST", "/test"))
-    handler = Handler()
+    request = Request(envbuilder("POST", "/test"))
+    handler = Handler(application)
 
     handler.get = Mock()
 

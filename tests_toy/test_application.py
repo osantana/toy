@@ -93,7 +93,7 @@ def test_application_call_handler(application, envbuilder):
     handler = Mock()
     application.add_route(r'^/(?P<arg>.*)$', handler)
 
-    request = Request(application, envbuilder('GET', '/test-argument'))
+    request = Request(envbuilder('GET', '/test-argument'))
     application.call_handler(request)
 
     handler.assert_called_once_with(request)

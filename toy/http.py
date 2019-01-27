@@ -27,8 +27,7 @@ def parse_content_type(content_type, default_charset='iso-8859-1'):
 
 
 class Request:
-    def __init__(self, application, environ):
-        self.application = application
+    def __init__(self, environ):
         self.method = environ.get('REQUEST_METHOD', 'GET').upper()
         self.path = environ.get('PATH_INFO', '/')
 

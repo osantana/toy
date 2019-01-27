@@ -52,7 +52,7 @@ class Application:
         return response
 
     def __call__(self, environ, start_response):
-        request = Request(self, environ)
+        request = Request(environ)
         response = self.call_handler(request)
         wsgi_response = WSGIResponse(response)
 
