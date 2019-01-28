@@ -17,7 +17,7 @@ def test_error_abstract_field():
     field = fields.Field(name='test')
 
     with pytest.raises(NotImplementedError):
-        _ = field.value
+        return field.value
 
     with pytest.raises(NotImplementedError):
         field.value = 'error'

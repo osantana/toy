@@ -75,8 +75,12 @@ class Request:
 
 
 class Response:
-    def __init__(self, data: str, status: HTTPStatus = Ok(), headers=None,
+    def __init__(self, data: str, status: HTTPStatus = None, headers=None,
                  content_type='application/octet-stream; charset=iso-8859-1', **kwargs):
+
+        if status is None:
+            status = Ok()
+
         self.status = status
         self.data = data
 

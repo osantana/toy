@@ -7,7 +7,7 @@ class Storage:
 
     def initialize_database(self):
         pass
-    
+
     def get_recipes(self, offset=0, limit=50, search=None):
         pass
 

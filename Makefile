@@ -6,3 +6,6 @@ server:
 
 test:
 	docker-compose run --rm --entrypoint pytest api
+
+lint:
+	pre-commit run -a -v

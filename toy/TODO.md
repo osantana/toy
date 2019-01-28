@@ -1,14 +1,15 @@
 # TODO
 
 * [ ] Add Auth
+* [ ] Add multi-handlers for different methods in same route
 * [ ] Add more payload processors
   * [ ] XML
   * [ ] HTML Form
-* [ ] Resource Handler
-* [ ] Resource Validation
-  * [ ] Required Field
-  * [ ] Default Value for Missing Fields
-* [ ] Resource Query String Features
+* [ ] Resource handler
+* [ ] Resource validation
+  * [ ] Required field
+  * [ ] Default value for missing fields
+* [ ] Resource query string features
   * [ ] Pagination
   * [ ] Search
   * [ ] Filter
