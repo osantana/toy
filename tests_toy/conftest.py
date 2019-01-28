@@ -3,8 +3,10 @@ from io import BytesIO
 import pytest
 from webtest import TestApp
 
+from toy import fields
 from toy.application import Application
 from toy.http import Response
+from toy.resources import Resource
 
 
 @pytest.fixture
@@ -75,4 +77,25 @@ def handler():
     # noinspection PyUnusedLocal
     def _hello(request, **kwargs):
         return Response('Hello!', content_type='text/plain; charset=utf-8')
+
     return _hello
+
+
+@pytest.fixture
+def resource_class():
+    class MyResource(Resource):
+        fields = [
+            fields.CharField(name='name', max_length=255),
+            fields.CharField(name='description', max_length=255)
+        ]
+
+        def get(self, **kwargs):
+            self['name'] = 'My Name'
+            self['description'] = 'My Description'
+
+    return MyResource
+
+
+@pytest.fixture
+def resource(resource_class):
+    return resource_class()
