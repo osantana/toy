@@ -4,8 +4,8 @@ from .http import Request, Response
 
 
 class Handler:
-    def __init__(self, application):
-        self.application = application
+    def __init__(self, **arguments):
+        self.arguments = arguments
 
     def _find_handler(self, request):
         method = request.method.upper()
