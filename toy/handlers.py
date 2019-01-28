@@ -23,6 +23,17 @@ class Handler:
         return self.dispatch(request)
 
 
+class ResourceHandler(Handler):
+    resource = None
+
+    def dispatch(self, request: Request) -> Response:
+        handler = self._find_handler(request)
+
+        response = handler(request)
+
+        return response
+
+
 # noinspection PyUnusedLocal
 def not_found_handler(request, **kwargs):
     return Response(f'URL {request.path} not found.', NotFound())
