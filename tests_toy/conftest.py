@@ -1,3 +1,4 @@
+import json
 from io import BytesIO
 
 import pytest
@@ -5,7 +6,7 @@ from webtest import TestApp
 
 from toy import fields
 from toy.application import Application
-from toy.http import Response
+from toy.http import Response, Request
 from toy.resources import Resource
 
 
@@ -99,3 +100,18 @@ def resource_class():
 @pytest.fixture
 def resource(resource_class):
     return resource_class()
+
+
+@pytest.fixture
+def post_request(envbuilder):
+    data = {
+        'name': 'My Name',
+        'description': 'My Description',
+    }
+    environ = envbuilder(
+        method='POST',
+        path='/',
+        content_type='application/json',
+        input_stream=json.dumps(data),
+    )
+    return Request(environ)
