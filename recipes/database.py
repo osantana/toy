@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy_searchable import make_searchable
 
 
 class Database:
@@ -11,6 +12,8 @@ class Database:
         self.connection = None
 
         self.Model = declarative_base()
+
+        make_searchable(self.Model.metadata)
 
     def init_app(self, application):
         self.database_url = application.config['database_url']
