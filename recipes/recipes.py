@@ -1,20 +1,23 @@
-import dj_database_url
 from prettyconf import config
 
+from .database import Database
 from toy.application import Application
 from . import handlers
-from .storage import Storage
 
 
 class Recipes(Application):
     def initialize(self):
         self.debug = config('DEBUG', default=False, cast=config.boolean)
-        self.add_route(r'/recipes', handlers.Recipes())
-        self.add_route(r'/recipes/(?P<id>\d+)', handlers.Recipe())
-        self.add_route(r'/recipes/(?P<id>\d+)/rating', handlers.Recipe())
 
-        db_config = config('DATABASE_URL', cast=dj_database_url.parse)
-        self.add_extension('storage', Storage(db_config))
+        recipe_handler = handlers.Recipe(application=self)
+        self.add_route(r'/recipes', handlers.Recipes(application=self))  # GET only
+        self.add_route(r'/recipes', recipe_handler)  # POST
+        self.add_route(r'/recipes/(?P<id>\d+)', recipe_handler)
+        self.add_route(r'/recipes/(?P<id>\d+)/rating', handlers.Rating(application=self))
+
+        database_url = config('DATABASE_URL')
+        db = Database.get(database_url, echo=self.debug)
+        self.add_extension('db', db)
 
 
 def get_app():

@@ -1,7 +1,7 @@
 import re
 
-from .handlers import not_found_handler, internal_error_handler
 from .exceptions import InvalidRouteHandler
+from .handlers import internal_error_handler, not_found_handler
 
 
 class Route:
