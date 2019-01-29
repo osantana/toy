@@ -3,7 +3,7 @@ import argparse
 from prettyconf import config
 
 from toy.server import HTTPServer
-from .recipes import get_app
+from .application import get_app
 
 
 def parse_host_port(hostname):
