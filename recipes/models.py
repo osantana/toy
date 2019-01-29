@@ -30,20 +30,6 @@ def hash_password(password, salt=None, iterations=180000, alg='pbkdf2_sha256'):
     return f'{alg}${iterations}${salt}${passwd_hash}'
 
 
-class Recipe(db.Model):
-    __tablename__ = 'recipes'
-
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    name = Column(String(length=255), index=True)
-    prep_time = Column(Interval)
-    difficulty = Column(SmallInteger)
-    vegetarian = Column(Boolean)
-
-    ratings = relationship('Rating', back_populates='recipe')
-
-    search = Column(TSVectorType('name'))
-
-
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -63,10 +49,24 @@ class User(db.Model):
         return self.password == result
 
 
+class Recipe(db.Model):
+    __tablename__ = 'recipes'
+
+    id = Column(UUID(as_uuid=True), primary_key=True)
+    name = Column(String(length=255), index=True)
+    prep_time = Column(Interval)
+    difficulty = Column(SmallInteger)
+    vegetarian = Column(Boolean)
+
+    ratings = relationship('Rating', back_populates='recipe')
+
+    search = Column(TSVectorType('name'))
+
+
 class Rating(db.Model):
     __tablename__ = 'ratings'
 
     id = Column(UUID(as_uuid=True), primary_key=True)
-    recipe_id = Column(UUID(as_uuid=True), ForeignKey('recipes.id'))
+    recipe_id = Column(UUID(as_uuid=True), ForeignKey('recipes.id'), nullable=False)
     recipe = relationship('Recipe', back_populates='ratings')
     value = Column(SmallInteger)
