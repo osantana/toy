@@ -21,5 +21,5 @@ class Recipes(Application):
 
 def get_app():
     app = Recipes()
-    db.init_app(db)
+    db.init_app(app)
     return app
