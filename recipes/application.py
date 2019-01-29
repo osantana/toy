@@ -1,10 +1,8 @@
 from prettyconf import config
 
+from .database import get_db
 from toy.application import Application
 from . import handlers
-from .database import Database
-
-db = Database()
 
 
 class Recipes(Application):
@@ -21,5 +19,5 @@ class Recipes(Application):
 
 def get_app():
     app = Recipes()
-    db.init_app(app)
+    get_db(app)
     return app
