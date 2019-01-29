@@ -5,15 +5,27 @@ from .routing import Routes
 
 
 class Application:
-    def __init__(self, debug=False):
+    def __init__(self, **kwargs):
         self.routes = Routes()
-        self.debug = debug
         self.extensions = {}
+        self.config = {
+            'debug': False,
+        }
+
+        self.config.update(kwargs)
 
         self.initialize()
 
     def initialize(self):
         pass
+
+    @property
+    def debug(self):
+        return self.config.get('debug', False)
+
+    @debug.setter
+    def debug(self, value):
+        self.config['debug'] = value
 
     def add_extension(self, key, value):
         if key in self.extensions:

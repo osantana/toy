@@ -14,6 +14,9 @@ def test_basic_application():
     assert callable(app), "It's not a WSGI middleware"
     assert len(app.routes) == 0
     assert len(app.extensions) == 0
+    assert len(app.config) == 1
+    assert app.debug == app.config['debug']
+    assert app.debug is False
 
 
 def test_basic_request_to_app(application, handler):
