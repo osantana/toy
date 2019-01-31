@@ -22,13 +22,35 @@ def test_basic_application():
 def test_basic_request_to_app(application, handler):
     application.add_route(r'^/test', handler)
 
-    app = TestApp(application)
+    client = TestApp(application)
 
-    response = app.get('/test')
+    response = client.get('/test')
 
     assert response.status == '200 OK'
     assert response.headers['Content-Type'] == 'text/plain; charset=utf-8'
     assert response.body == 'Hello!'.encode('utf-8')
+
+
+def test_request_different_methods_to_same_route_different_handlers(application, get_handler, post_handler):
+    application.add_route(r'^/test', get_handler)
+    application.add_route(r'^/test', post_handler)
+
+    client = TestApp(application)
+
+    response = client.get('/test')
+    assert response.body == 'Hello GET!'.encode('utf-8')
+
+    response = client.post('/test')
+    assert response.body == 'Hello POST!'.encode('utf-8')
+
+
+def test_fail_request_methods_not_allowed_in_handlers(application, get_handler, post_handler):
+    application.add_route(r'^/test', post_handler)
+
+    client = TestApp(application)
+
+    response = client.get('/test', status=405)
+    assert response.status == '405 Method Not Allowed'
 
 
 def test_add_application_extension(application):

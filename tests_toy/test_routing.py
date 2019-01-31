@@ -12,7 +12,9 @@ def test_basic_route(handler):
     assert route.path == r'^/$'
     assert route.pattern == re.compile(r'^/$')
     assert route.handler == handler
+    assert repr(route) == '<Route ^/$ function>'
     assert route.match('/') == {}
+    assert route.args == {}
     assert route.match('/dont-match') is None
 
 
@@ -39,7 +41,7 @@ def test_basic_routes(handler):
     ])
 
     assert len(routes) == 1
-    assert routes[r'^/$'].path == '^/$'
+    assert routes[r'^/$'][0].path == '^/$'
 
 
 def test_add_routes(handler):
@@ -50,15 +52,27 @@ def test_add_routes(handler):
     routes.add_route(r'^/3$', handler)
 
     assert len(routes) == 3
-    assert routes['^/1$'].path == '^/1$'
-    assert routes['^/2$'].path == '^/2$'
-    assert routes['^/3$'].path == '^/3$'
+    assert routes['^/1$'][0].path == '^/1$'
+    assert routes['^/2$'][0].path == '^/2$'
+    assert routes['^/3$'][0].path == '^/3$'
 
 
 def test_match_route_in_routes(handler):
     routes = Routes()
     routes.add_route(r'^/$', handler)
+    routes.add_route(r'^/(?P<arg>.+)$', handler)
+
+    assert routes.match('/')[0].path == r'^/$'
+
+    match = routes.match('/resources')[0]
+    assert match.path == r'^/(?P<arg>.+)$'
+    assert match.args == {'arg': 'resources'}
+
+
+def test_match_multople_routes_in_routes(handler):
+    routes = Routes()
+    routes.add_route(r'^/$', handler)
     routes.add_route(r'^/(?P<arg>.*)$', handler)
 
-    assert routes.match("/").path == r'^/$'
-    assert routes.match("/resources").path == r'^/(?P<arg>.*)$'
+    assert routes.match("/")[0].path == r'^/$'
+    assert routes.match("/")[1].path == r'^/(?P<arg>.*)$'

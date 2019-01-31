@@ -1,4 +1,4 @@
-from staty import HTTPError
+from staty import HTTPError, MethodNotAllowed, MethodNotAllowedException
 
 from .http import Request, Response, WSGIResponse
 from .routing import Routes
@@ -41,27 +41,32 @@ class Application:
 
     def call_handler(self, request: Request) -> Response:
         path = request.path
-        route = self.routes.match(path)
+        routes = self.routes.match(path)
 
-        if not route:
+        if not routes:
             return self.routes.not_found(request)
 
-        kwargs = route.match(request.path)
-        request.args.update(kwargs)
+        for route in routes:
+            request.args.update(route.args)
 
-        # noinspection PyBroadException
-        try:
-            response = route.handler(request)
-        except HTTPError as ex:
-            response = Response(str(ex), status=ex.status)
+            # noinspection PyBroadException
+            try:
+                response = route.handler(request)
+            except MethodNotAllowedException:
+                continue
 
-        # We need to intercept all exceptions to return 500 reponse
-        except Exception:
-            if self.debug:
-                raise
-            return self.routes.internal_error(request)
+            except HTTPError as ex:
+                response = Response(str(ex), status=ex.status)
 
-        return response
+            # We need to intercept all exceptions to return appropriate 500 response
+            except Exception:
+                if self.debug:
+                    raise
+                return self.routes.internal_error(request)
+
+            return response
+
+        return Response(f'Method {request.method} not allowed', status=MethodNotAllowed())
 
     def __call__(self, environ, start_response):
         request = Request(environ)

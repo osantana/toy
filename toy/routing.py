@@ -15,12 +15,19 @@ class Route:
         self.handler = handler
 
         self.pattern = re.compile(path)
+        self.args = {}
 
     def match(self, path):
         match = self.pattern.search(path)
         if not match:
             return
-        return match.groupdict()
+
+        self.args.update(match.groupdict())
+
+        return self.args
+
+    def __repr__(self):
+        return f'<Route {self.path} {self.handler.__class__.__name__}>'
 
 
 class Routes:
@@ -48,12 +55,16 @@ class Routes:
         return self._routes[path]
 
     def add(self, route: Route):
-        self._routes[route.path] = route
+        if route.path in self._routes:
+            self._routes[route.path].append(route)
+        else:
+            self._routes[route.path] = [route]
 
     def add_route(self, path, handler):
         self.add(Route(path, handler))
 
     def match(self, path):
-        for route in self._routes.values():
-            if route.match(path) is not None:
-                return route
+        matches = []
+        for routes in self._routes.values():
+            matches.extend(route for route in routes if route.match(path) is not None)
+        return matches

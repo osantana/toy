@@ -2,11 +2,11 @@ import json
 from io import BytesIO
 
 import pytest
-from webtest import TestApp
 
 from toy import fields
 from toy.application import Application
-from toy.http import Response, Request
+from toy.handlers import Handler
+from toy.http import Request, Response
 from toy.resources import Resource
 
 
@@ -15,11 +15,6 @@ def application():
     app = Application()
     app.add_route(r'^/$', lambda req: req)
     return app
-
-
-@pytest.fixture
-def client(application):
-    return TestApp(application)
 
 
 def _environ_builder(method, path, input_stream=None, **kwargs):
@@ -74,12 +69,39 @@ def binary_content():
 
 
 @pytest.fixture
-def handler():
+def hello_response():
+    return Response('Hello!', content_type='text/plain; charset=utf-8')
+
+
+@pytest.fixture
+def handler(hello_response):
     # noinspection PyUnusedLocal
     def _hello(request, **kwargs):
-        return Response('Hello!', content_type='text/plain; charset=utf-8')
+        return hello_response
 
     return _hello
+
+
+@pytest.fixture
+def get_handler(hello_response):
+    class GetHandler(Handler):
+        # noinspection PyUnusedLocal
+        def get(self, request):
+            hello_response.data = 'Hello GET!'
+            return hello_response
+
+    return GetHandler()
+
+
+@pytest.fixture
+def post_handler(hello_response):
+    class PostHandler(Handler):
+        # noinspection PyUnusedLocal
+        def post(self, request):
+            hello_response.data = 'Hello POST!'
+            return hello_response
+
+    return PostHandler()
 
 
 @pytest.fixture
