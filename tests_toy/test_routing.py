@@ -41,7 +41,7 @@ def test_basic_routes(handler):
     ])
 
     assert len(routes) == 1
-    assert routes[r'^/$'][0].path == '^/$'
+    assert routes[0].path == '^/$'
 
 
 def test_add_routes(handler):
@@ -52,9 +52,9 @@ def test_add_routes(handler):
     routes.add_route(r'^/3$', handler)
 
     assert len(routes) == 3
-    assert routes['^/1$'][0].path == '^/1$'
-    assert routes['^/2$'][0].path == '^/2$'
-    assert routes['^/3$'][0].path == '^/3$'
+    assert routes[0].path == '^/1$'
+    assert routes[1].path == '^/2$'
+    assert routes[2].path == '^/3$'
 
 
 def test_match_route_in_routes(handler):

@@ -37,34 +37,27 @@ class Routes:
             not_found=not_found_handler,
             internal_error=internal_error_handler,
     ):
-        self._routes = {}
-
         if routes is None:
             routes = []
 
-        for route in routes:
-            self.add(route)
-
+        self._routes = routes
         self.not_found = not_found
         self.internal_error = internal_error
 
     def __len__(self):
         return len(self._routes)
 
-    def __getitem__(self, path):
-        return self._routes[path]
+    def __getitem__(self, item):
+        return self._routes[item]
 
     def add(self, route: Route):
-        if route.path in self._routes:
-            self._routes[route.path].append(route)
-        else:
-            self._routes[route.path] = [route]
+        if route in self._routes:
+            raise ValueError('Duplicated route/handler')
+
+        self._routes.append(route)
 
     def add_route(self, path, handler):
         self.add(Route(path, handler))
 
     def match(self, path):
-        matches = []
-        for routes in self._routes.values():
-            matches.extend(route for route in routes if route.match(path) is not None)
-        return matches
+        return [route for route in self._routes if route.match(path) is not None]
