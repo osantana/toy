@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy_searchable import make_searchable
 
 
@@ -10,17 +11,23 @@ class Database:
         self.database_url = None
         self.engine = None
         self.connection = None
+        self.session = None
 
         self.Model = declarative_base()
+        self.Session = sessionmaker()
 
         make_searchable(self.Model.metadata)
 
     def init_app(self, application):
         self.database_url = application.config['database_url']
-        self.engine = create_engine(self.database_url, echo=application.debug)
-        self.connection = self.engine.connect()
-
+        self.connect(self.database_url, application.debug)
         application.extensions['db'] = self
+
+    def connect(self, database_url, debug=False):
+        self.engine = create_engine(database_url, echo=debug)
+        self.Session.configure(bind=self.engine)
+        self.connection = self.engine.connect()
+        self.session = self.Session()
 
     @classmethod
     def get(cls):
