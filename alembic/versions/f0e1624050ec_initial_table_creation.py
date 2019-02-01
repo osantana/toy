@@ -4,7 +4,7 @@ from sqlalchemy_utils import TSVectorType
 
 from alembic import op
 
-revision = 'b5fa438e36c7'
+revision = 'f0e1624050ec'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -14,9 +14,9 @@ def upgrade():
     op.create_table('recipes',
                     sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
                     sa.Column('name', sa.String(length=255), nullable=True),
-                    sa.Column('prep_time', sa.Interval(), nullable=True),
-                    sa.Column('difficulty', sa.SmallInteger(), nullable=True),
-                    sa.Column('vegetarian', sa.Boolean(), nullable=True),
+                    sa.Column('prep_time', sa.Interval(), nullable=False),
+                    sa.Column('difficulty', sa.SmallInteger(), nullable=False),
+                    sa.Column('vegetarian', sa.Boolean(), nullable=False),
                     sa.Column('search', TSVectorType(), nullable=True),
                     sa.PrimaryKeyConstraint('id')
                     )
@@ -32,7 +32,7 @@ def upgrade():
     op.create_table('ratings',
                     sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
                     sa.Column('recipe_id', postgresql.UUID(as_uuid=True), nullable=False),
-                    sa.Column('value', sa.SmallInteger(), nullable=True),
+                    sa.Column('value', sa.SmallInteger(), nullable=False),
                     sa.ForeignKeyConstraint(('recipe_id',), ['recipes.id'], ),
                     sa.PrimaryKeyConstraint('id')
                     )
