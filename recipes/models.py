@@ -13,11 +13,15 @@ from .database import db
 
 
 # from django code
+def _gen_salt():
+    rnd = random.SystemRandom()
+    allowed_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    return ''.join(rnd.choice(allowed_chars) for _ in range(12))
+
+
 def hash_password(password, salt=None, iterations=180000, alg='pbkdf2_sha256'):
     if salt is None:
-        rnd = random.SystemRandom()
-        allowed_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-        salt = ''.join(rnd.choice(allowed_chars) for _ in range(12))
+        salt = _gen_salt()
 
     password = password.encode('utf-8')
 
