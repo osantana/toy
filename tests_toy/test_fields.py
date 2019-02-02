@@ -182,3 +182,10 @@ def test_field_dirtyness():
 
     field.clean()
     assert field.dirty is False
+
+    field.value = 'dirty value'
+    assert field.dirty is False
+
+    field.value = 'temp dirty'
+    field.value = 'dirty value'
+    assert field.dirty is False

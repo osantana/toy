@@ -57,6 +57,7 @@ class Field:
             return
 
         if new_value == self._old_value:
+            self._value = self.old_value
             return
 
         self._old_value = self._value
