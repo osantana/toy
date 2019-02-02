@@ -11,11 +11,11 @@ class Field:
 
     @property
     def value(self):
-        raise NotImplementedError('Field is an abstract class')
+        raise NotImplementedError('Field is an abstract class')  # pragma: nocover
 
     @value.setter
     def value(self, new_value):
-        raise NotImplementedError('Field is an abstract class')
+        raise NotImplementedError('Field is an abstract class')  # pragma: nocover
 
     def __eq__(self, other):
         return self._value == other
@@ -105,4 +105,21 @@ class ResourceField(Field):
     def value(self, new_value):
         if not isinstance(new_value, self.resource_type):
             raise TypeError('Invalid resource type')
+        self._value = new_value
+
+
+class ResourceListField(ResourceField):
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        if not isinstance(new_value, (tuple, list)):
+            raise TypeError('Invalid list value')
+
+        for item in new_value:
+            if not isinstance(item, self.resource_type):
+                raise TypeError('Invalid resource type inside list')
+
         self._value = new_value

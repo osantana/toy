@@ -13,16 +13,6 @@ def test_basic_field():
     assert field.name == 'test'
 
 
-def test_error_abstract_field():
-    field = fields.Field(name='test')
-
-    with pytest.raises(NotImplementedError):
-        return field.value
-
-    with pytest.raises(NotImplementedError):
-        field.value = 'error'
-
-
 def test_basic_uuid_field():
     field = fields.UUIDField(name='uuid')
 
@@ -145,7 +135,36 @@ def test_fail_invalid_resource_in_resource_field_value(application):
         def get(self):
             pass
 
+        def create(self, **kwargs):
+            pass
+
     field = fields.ResourceField(name='resource', resource_type=SpecificResource)
 
     with pytest.raises(TypeError):
-        field.value = Resource(application)
+        field.value = Resource()
+
+
+def test_basic_resource_list_field():
+    field = fields.ResourceListField(name='resource_list', resource_type=Resource)
+    field.value = [Resource()]
+
+    assert field.name == 'resource_list'
+    assert field.resource_type == Resource
+    assert isinstance(field.value[0], Resource)
+
+
+def test_fail_invalid_resource_in_resource_list_field_value(application):
+    class SpecificResource(Resource):
+        def get(self):
+            pass
+
+        def create(self, **kwargs):
+            pass
+
+    field = fields.ResourceListField(name='resource', resource_type=SpecificResource)
+
+    with pytest.raises(TypeError):
+        field.value = SpecificResource()  # not list
+
+    with pytest.raises(TypeError):
+        field.value = [Resource()]
