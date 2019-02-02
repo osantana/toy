@@ -1,28 +1,22 @@
 import pytest
 
 from toy import fields
-from toy.resources import Resource, RequestProcessor
+from toy.resources import Resource, Processor
 
 
 def test_basic_resource():
+    # noinspection PyAbstractClass
     class MyResource(Resource):
         fields = [
             fields.CharField(name='name', max_length=255),
             fields.CharField(name='description', max_length=255)
         ]
 
-        def get(self, **kwargs):
-            pass
-
-        def create(self, **kwargs):
-            pass
-
-    resource = MyResource(arg='value')
+    resource = MyResource()
 
     assert isinstance(resource, MyResource)
     assert 'name' in resource
     assert 'description' in resource
-    assert resource.arguments == {'arg': 'value'}
 
 
 def test_fail_abstract_resource():
@@ -59,9 +53,17 @@ def test_fail_set_invalid_field(resource):
         resource['invalid'] = 'value'
 
 
-def test_global_processor(post_request, basic_resource_class):
-    processor = RequestProcessor(post_request)
-    resource = processor.process_payload(basic_resource_class)
+def test_processor_get_data(post_request):
+    processor = Processor(post_request)
+    data = processor.get_data()
 
-    assert resource['name'] == 'My Name'
-    assert resource['description'] == 'My Description'
+    assert data['name'] == 'My Name'
+    assert data['description'] == 'My Description'
+
+
+def test_processor_get_response(post_request, json_data):
+    processor = Processor(post_request)
+    response = processor.get_response(processor.get_data())
+
+    assert response.status == 200
+    assert response.data == json_data

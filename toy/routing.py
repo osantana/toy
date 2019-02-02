@@ -15,16 +15,16 @@ class Route:
         self.handler = handler
 
         self.pattern = re.compile(path)
-        self.args = {}
+        self.path_arguments = {}
 
     def match(self, path):
         match = self.pattern.search(path)
         if not match:
             return
 
-        self.args.update(match.groupdict())
+        self.path_arguments.update(match.groupdict())
 
-        return self.args
+        return self.path_arguments
 
     def __repr__(self):
         return f'<Route {self.path} {self.handler.__class__.__name__}>'

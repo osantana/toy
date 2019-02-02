@@ -122,4 +122,4 @@ def test_application_call_handler(application, envbuilder):
     application.call_handler(request)
 
     handler.assert_called_once_with(request)
-    assert request.args == {'arg': 'test-argument'}
+    assert request.path_arguments == {'arg': 'test-argument'}

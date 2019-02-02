@@ -1,18 +1,29 @@
-from typing import Type
+from typing import Optional
 
-from .http import Response
+from staty import HTTPStatus, Ok
+
+from .http import Request, Response
 from .serializers import serializers
 
 
 class Resource:
     fields = []
 
-    def __init__(self, **arguments):
-        self.arguments = arguments
-        self._fields = {}
+    def __init__(self, request: Optional[Request] = None, application_args=None, **data):
+        self.request = request
 
+        if application_args is None:
+            application_args = {}
+        self.application_args = application_args
+
+        self._fields = {}
         for field in self.fields:
+            if field.name in self._fields:
+                raise TypeError('Duplicated field name')
+
             self._fields[field.name] = field
+
+        self.update(data)
 
     def __setitem__(self, key, value):
         if key not in self._fields:
@@ -30,11 +41,8 @@ class Resource:
         for key, value in data.items():
             self[key] = value
 
-    def get(self, **kwargs):
-        raise NotImplementedError('Abstract class')
-
-    def create(self, **kwargs):
-        raise NotImplementedError('Abstract class')
+    def validate(self, lazy=True):
+        pass  # TODO: implement basic validation
 
     @property
     def data(self):
@@ -43,28 +51,64 @@ class Resource:
             result[key] = field.value
         return result
 
+    @classmethod
+    def get(cls, request=None, application_args=None):
+        resource = cls.do_get(request, application_args)
+        resource.validate()
+        return resource
 
-class RequestProcessor:
-    def __init__(self, request, serializers_manager=None):
+    def create(self):
+        self.validate(lazy=False)
+        self.do_create()
+        self.validate()
+
+    def replace(self):
+        self.validate()
+        self.do_replace()
+
+    def change(self, **kwargs):
+        self.validate()
+        self.do_change(**kwargs)
+
+    @classmethod
+    def do_get(cls, request=None, application_args=None):  # maps to get
+        raise NotImplementedError('Abstract class')
+
+    def do_create(self):  # maps to post
+        raise NotImplementedError('Abstract class')
+
+    def do_replace(self):  # maps to put
+        raise NotImplementedError('Abstract class')
+
+    def do_change(self, **kwargs):  # maps to patch
+        raise NotImplementedError('Abstract class')
+
+
+class Processor:
+    def __init__(self, request: Request, serializers_manager=None):
         self.request = request
 
         if serializers_manager is None:
             serializers_manager = serializers
         self.serializers = serializers_manager
 
-    def process_payload(self, resource_class: Type[Resource]) -> Resource:
-        resource = resource_class(
-            args=self.request.args,
-            query_string=self.request.query_string,
-        )
-
+    def get_data(self) -> dict:
         serializer = self.serializers[self.request.content_type]
+        return serializer.load(self.request.data)
 
-        resource_data = serializer.load(self.request.data)
-        resource.update(resource_data)
+    def get_response(self, data: dict, status: Optional[HTTPStatus] = None, headers=None, **kwargs) -> Response:
+        if status is None:
+            status = Ok()
 
-        return resource
+        content_type = self.request.accept[0].media_type
+        serializer = self.serializers[content_type]
+        data = serializer.dump(data)
 
-    def process_resource(self, resource: Resource) -> Response:
-        # TODO
-        pass
+        response = Response(
+            data=data,
+            status=status,
+            content_type=content_type,
+            headers=headers,
+            **kwargs,
+        )
+        return response

@@ -14,7 +14,7 @@ def test_basic_route(handler):
     assert route.handler == handler
     assert repr(route) == '<Route ^/$ function>'
     assert route.match('/') == {}
-    assert route.args == {}
+    assert route.path_arguments == {}
     assert route.match('/dont-match') is None
 
 
@@ -66,7 +66,7 @@ def test_match_route_in_routes(handler):
 
     match = routes.match('/resources')[0]
     assert match.path == r'^/(?P<arg>.+)$'
-    assert match.args == {'arg': 'resources'}
+    assert match.path_arguments == {'arg': 'resources'}
 
 
 def test_match_multople_routes_in_routes(handler):

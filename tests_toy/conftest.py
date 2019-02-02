@@ -112,9 +112,17 @@ def basic_resource_class():
             fields.CharField(name='description', max_length=255)
         ]
 
-        def get(self, **kwargs):
-            self['name'] = 'My Name'
-            self['description'] = 'My Description'
+        @classmethod
+        def do_get(cls, request=None, application_args=None):
+            resource = cls(request=request, application_args=application_args)
+            resource.update({
+                'name': 'My Name',
+                'description': 'My Description',
+            })
+            return resource
+
+        def do_create(self):
+            pass
 
     return MyResource
 
@@ -128,11 +136,11 @@ def resource(basic_resource_class):
 def json_data():
     json_str = '''
       {
-        "name": "My JSON Name",'
-        "description": "My JSON Description'
+        "name": "My Name",
+        "description": "My Description"
       }
     '''.strip()
-    return json_str
+    return json.dumps(json.loads(json_str))  # strip blanks
 
 
 @pytest.fixture

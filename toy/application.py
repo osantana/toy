@@ -47,7 +47,7 @@ class Application:
             return self.routes.not_found(request)
 
         for route in routes:
-            request.args.update(route.args)
+            request.path_arguments.update(route.path_arguments)
 
             # noinspection PyBroadException
             try:

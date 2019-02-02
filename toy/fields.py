@@ -4,6 +4,11 @@ from uuid import UUID
 from .resources import Resource
 
 
+# TODO:
+#  - support for validators (ex. required)
+#  - support for dirt/clean fields
+#  - support for lazy field validator (like id)?
+
 class Field:
     def __init__(self, name):
         self.name = name
