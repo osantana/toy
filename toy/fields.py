@@ -1,7 +1,7 @@
 from typing import Optional
 from uuid import UUID
 
-from toy.resources import Resource
+from .resources import Resource
 
 
 class Field:
