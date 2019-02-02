@@ -4,13 +4,8 @@ from uuid import uuid4
 import pytest
 
 from toy import fields
+from toy.exceptions import ValidationError
 from toy.resources import Resource
-
-
-def test_basic_field():
-    field = fields.Field(name='test')
-
-    assert field.name == 'test'
 
 
 def test_basic_uuid_field():
@@ -131,12 +126,9 @@ def test_fail_invalid_resource_type_in_resource_field():
 
 
 def test_fail_invalid_resource_in_resource_field_value(application):
+    # noinspection PyAbstractClass
     class SpecificResource(Resource):
-        def get(self):
-            pass
-
-        def create(self, **kwargs):
-            pass
+        pass
 
     field = fields.ResourceField(name='resource', resource_type=SpecificResource)
 
@@ -154,12 +146,9 @@ def test_basic_resource_list_field():
 
 
 def test_fail_invalid_resource_in_resource_list_field_value(application):
+    # noinspection PyAbstractClass
     class SpecificResource(Resource):
-        def get(self):
-            pass
-
-        def create(self, **kwargs):
-            pass
+        pass
 
     field = fields.ResourceListField(name='resource', resource_type=SpecificResource)
 
@@ -168,3 +157,28 @@ def test_fail_invalid_resource_in_resource_list_field_value(application):
 
     with pytest.raises(TypeError):
         field.value = [Resource()]
+
+
+def test_field_validation():
+    field = fields.CharField(name='name', max_length=255, validators=[fields.Required()])
+
+    with pytest.raises(ValidationError):
+        field.validate()
+
+
+def test_skip_field_validation_lazy_fields():
+    field = fields.CharField(name='name', max_length=255, lazy=True, validators=[fields.Required()])
+    field.validate(include_lazy=False)
+    with pytest.raises(ValidationError):
+        field.validate()
+
+
+def test_field_dirtyness():
+    field = fields.CharField(name='name', max_length=255)
+    assert field.dirty is False
+
+    field.value = 'dirty value'
+    assert field.dirty is True
+
+    field.clean()
+    assert field.dirty is False
