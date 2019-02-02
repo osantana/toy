@@ -5,6 +5,18 @@ from urllib.parse import parse_qs
 import accept
 from staty import HTTPStatus, Ok
 
+HTTP_METHODS = {
+    'PATCH',
+    'CONNECT',
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'HEAD',
+    'POST',
+    'PUT',
+    'TRACE',
+}
+
 
 def to_title_case(text):
     text = text.upper()

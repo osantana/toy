@@ -1,6 +1,7 @@
 from staty import InternalServerError, MethodNotAllowedException, NotFound
 
-from .http import Request, Response
+from .http import HTTP_METHODS, Request, Response
+from .resources import RequestProcessor
 
 
 class Handler:
@@ -8,7 +9,11 @@ class Handler:
         self.arguments = arguments
 
     def _find_handler(self, request):
-        method = request.method.upper()
+        method = request.method
+
+        if method not in HTTP_METHODS:
+            raise MethodNotAllowedException(f'Method {method} not allowed')
+
         try:
             handler = getattr(self, method.lower())
         except AttributeError:
@@ -17,21 +22,20 @@ class Handler:
 
     def dispatch(self, request: Request) -> Response:
         handler = self._find_handler(request)
-        return handler(request)
+        return handler(request, **self.arguments)
 
     def __call__(self, request: Request) -> Response:
         return self.dispatch(request)
 
 
 class ResourceHandler(Handler):
-    resource = None
+    resource_class = None
 
-    def dispatch(self, request: Request) -> Response:
-        handler = self._find_handler(request)
-
-        response = handler(request)
-
-        return response
+    def post(self, request, **kwargs):
+        processor = RequestProcessor(request)
+        resource = processor.process_payload(self.resource_class)
+        resource.create(**kwargs)
+        return processor.process_resource(resource)
 
 
 # noinspection PyUnusedLocal

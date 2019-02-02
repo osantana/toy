@@ -1,9 +1,8 @@
 from unittest.mock import Mock
 
 import pytest
-from staty import MethodNotAllowedException
 
-from toy.handlers import Handler
+from toy.handlers import Handler, ResourceHandler
 from toy.http import Request
 
 
@@ -13,7 +12,7 @@ def test_basic_handler_arguments():
 
 
 def test_basic_dispatcher_handler(envbuilder):
-    request = Request(envbuilder("GET", "/test"))
+    request = Request(envbuilder('GET', '/test'))
     handler = Handler()
 
     mock = Mock()
@@ -25,7 +24,7 @@ def test_basic_dispatcher_handler(envbuilder):
 
 
 def test_basic_allowed_method_call(envbuilder):
-    request = Request(envbuilder("GET", "/test"))
+    request = Request(envbuilder('GET', '/test'))
     handler = Handler()
 
     handler.get = Mock()
@@ -35,11 +34,25 @@ def test_basic_allowed_method_call(envbuilder):
     handler.get.assert_called_once_with(request)
 
 
-def test_error_not_allowed_method_call(envbuilder):
-    request = Request(envbuilder("POST", "/test"))
-    handler = Handler()
+def test_dispatch_handler_arguments_to_method(envbuilder):
+    request = Request(envbuilder('GET', '/test'))
+    handler = Handler(arg='value')
 
     handler.get = Mock()
+    handler(request)
 
-    with pytest.raises(MethodNotAllowedException):
-        handler(request)
+    handler.get.assert_called_once_with(request, arg='value')
+
+
+@pytest.mark.skip('TODO: finish this test')
+def test_basic_resource_handler_creation(envbuilder, basic_resource_class, json_data):
+    class MyResourceHandler(ResourceHandler):
+        resource_class = basic_resource_class
+
+    request = Request(envbuilder('POST', '/', input_stream=json_data))
+    handler = MyResourceHandler()
+
+    response = handler(request)
+
+    assert response.status == 201
+    assert response.data == json_data

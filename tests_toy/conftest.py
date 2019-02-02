@@ -105,7 +105,7 @@ def post_handler(hello_response):
 
 
 @pytest.fixture
-def resource_class():
+def basic_resource_class():
     class MyResource(Resource):
         fields = [
             fields.CharField(name='name', max_length=255),
@@ -120,8 +120,19 @@ def resource_class():
 
 
 @pytest.fixture
-def resource(resource_class):
-    return resource_class()
+def resource(basic_resource_class):
+    return basic_resource_class()
+
+
+@pytest.fixture
+def json_data():
+    json_str = '''
+      {
+        "name": "My JSON Name",'
+        "description": "My JSON Description'
+      }
+    '''.strip()
+    return json_str
 
 
 @pytest.fixture

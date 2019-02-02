@@ -1,7 +1,7 @@
 import pytest
 
 from toy import fields
-from toy.resources import Resource
+from toy.resources import Resource, RequestProcessor
 
 
 def test_basic_resource():
@@ -12,6 +12,9 @@ def test_basic_resource():
         ]
 
         def get(self, **kwargs):
+            pass
+
+        def create(self, **kwargs):
             pass
 
     resource = MyResource(arg='value')
@@ -54,3 +57,11 @@ def test_basic_resource_data(resource):
 def test_fail_set_invalid_field(resource):
     with pytest.raises(ValueError):
         resource['invalid'] = 'value'
+
+
+def test_global_processor(post_request, basic_resource_class):
+    processor = RequestProcessor(post_request)
+    resource = processor.process_payload(basic_resource_class)
+
+    assert resource['name'] == 'My Name'
+    assert resource['description'] == 'My Description'

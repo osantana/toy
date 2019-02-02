@@ -4,7 +4,7 @@ staty==1.2.2
 accept==0.1.0
 
 # opensource project developed by myself https://github.com/osantana/prettyconf
-prettyconf==1.2.3
+prettyconf==2.0.1
 
 
 psycopg2-binary==2.7.7
