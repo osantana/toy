@@ -2,12 +2,14 @@ from typing import Optional
 
 from staty import HTTPStatus, Ok
 
+from toy.exceptions import ValidationException, ValidationError
 from .http import Request, Response
 from .serializers import serializers
 
 
 class Resource:
     fields = []
+    ignore_extra_data = False
 
     def __init__(self, request: Optional[Request] = None, application_args=None, **data):
         self.request = request
@@ -23,11 +25,13 @@ class Resource:
 
             self._fields[field.name] = field
 
+        self._extra_data = {}
         self.update(data)
 
     def __setitem__(self, key, value):
         if key not in self._fields:
-            raise ValueError('Invalid field')
+            self._extra_data[key] = value
+            return
 
         self._fields[key].value = value
 
@@ -41,8 +45,25 @@ class Resource:
         for key, value in data.items():
             self[key] = value
 
-    def validate(self, lazy=True):
-        pass  # TODO: implement basic validation
+    def validate(self, include_lazy=True, raise_exception=False):
+        errors = {}
+        for field in self._fields.values():
+            error = field.validate(include_lazy=include_lazy)
+            if not error:
+                continue
+            errors[field.name] = error
+
+        if self.ignore_extra_data:
+            return errors
+
+        if not self.ignore_extra_data and self._extra_data:
+            for key, value in self._extra_data.items():
+                errors[key] = [ValidationError('Extra field data', name=key, value=value)]
+
+        if raise_exception and errors:
+            raise ValidationException('Validation Error', errors=errors)
+
+        return errors
 
     @property
     def data(self):
@@ -58,7 +79,7 @@ class Resource:
         return resource
 
     def create(self):
-        self.validate(lazy=False)
+        self.validate(include_lazy=False)
         self.do_create()
         self.validate()
 

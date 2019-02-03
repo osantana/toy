@@ -106,10 +106,12 @@ def post_handler(hello_response):
 
 @pytest.fixture
 def basic_resource_class():
+    # noinspection PyAbstractClass
     class MyResource(Resource):
         fields = [
-            fields.CharField(name='name', max_length=255),
-            fields.CharField(name='description', max_length=255)
+            fields.CharField(name='name', max_length=255, validators=[fields.Required()]),
+            fields.CharField(name='description', max_length=255),
+            fields.CharField(name='slug', max_length=255, lazy=True, validators=[fields.Required()]),
         ]
 
         @classmethod
@@ -118,6 +120,7 @@ def basic_resource_class():
             resource.update({
                 'name': 'My Name',
                 'description': 'My Description',
+                'slug': 'my-name',
             })
             return resource
 
@@ -137,7 +140,8 @@ def json_data():
     json_str = '''
       {
         "name": "My Name",
-        "description": "My Description"
+        "description": "My Description",
+        "slug": "my-name"
       }
     '''.strip()
     return json.dumps(json.loads(json_str))  # strip blanks
@@ -148,6 +152,7 @@ def post_request(envbuilder):
     data = {
         'name': 'My Name',
         'description': 'My Description',
+        'slug': 'my-name',
     }
     environ = envbuilder(
         method='POST',

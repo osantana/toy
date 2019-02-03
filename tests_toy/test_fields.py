@@ -4,7 +4,7 @@ from uuid import uuid4
 import pytest
 
 from toy import fields
-from toy.exceptions import ValidationError
+from toy.exceptions import ValidationException
 from toy.resources import Resource
 
 
@@ -21,8 +21,8 @@ def test_basic_uuid_field():
 def test_error_invalid_uuid():
     field = fields.UUIDField(name='uuid')
 
-    with pytest.raises(ValueError):
-        field.value = 'invalid uuid'
+    field.value = 'invalid uuid'
+    assert field.validate()[0].message == 'Invalid value type for this field'
 
 
 def test_basic_char_field():
@@ -30,15 +30,16 @@ def test_basic_char_field():
     field.value = 'value'
 
     assert field.name == 'char'
-    assert field.max_length == 100
     assert field.value == 'value'
+    assert field.validate() == []
 
 
 def test_error_invalid_char_field():
     field = fields.CharField(name='char', max_length=1)
+    field.value = 'invalid'
 
-    with pytest.raises(ValueError):
-        field.value = 'invalid'
+    with pytest.raises(ValidationException):
+        field.validate(raise_exception=True)
 
 
 def test_check_equality_with_char_value():
@@ -52,9 +53,8 @@ def test_basic_integer_field():
     field = fields.IntegerField(name='int')
     field.value = 7
 
+    assert field.validate() == []
     assert field.name == 'int'
-    assert field.min_value is None
-    assert field.max_value is None
     assert field.value == 7
 
 
@@ -62,9 +62,8 @@ def test_integer_field_with_range():
     field = fields.IntegerField(name='int', min_value=5, max_value=10)
     field.value = 7
 
+    assert field.validate() == []
     assert field.name == 'int'
-    assert field.min_value == 5
-    assert field.max_value == 10
     assert field.value == 7
 
 
@@ -76,21 +75,21 @@ def test_fail_integer_field_invalid_value_range():
 def test_fail_invalid_value_in_integer_field():
     field = fields.IntegerField(name='int', min_value=5, max_value=10)
 
-    with pytest.raises(ValueError):
-        field.value = 100
+    field.value = 100
+    assert field.validate()[0].message == 'Invalid max value'
 
-    with pytest.raises(ValueError):
-        field.value = 1
+    field.value = 1
+    assert field.validate()[0].message == 'Invalid min value'
 
 
 def test_fail_invalid_type_in_integer_field():
     field = fields.IntegerField(name='int', min_value=5, max_value=10)
 
-    with pytest.raises(TypeError):
-        field.value = 6.5
+    field.value = 6.5
+    assert field.validate()[0].message == 'Invalid value type for this field'
 
-    with pytest.raises(TypeError):
-        field.value = Decimal('6.0')
+    field.value = Decimal('6.0')
+    assert field.validate()[0].message == 'Invalid value type for this field'
 
 
 def test_basic_boolean_field():
@@ -104,16 +103,16 @@ def test_basic_boolean_field():
 def test_fail_invalid_value_in_boolean_field():
     field = fields.BooleanField(name='bool')
 
-    with pytest.raises(ValueError):
-        field.value = None
+    field.value = None
+    assert field.validate()[0].message == 'Invalid value type for this field'
 
 
 def test_basic_resource_field():
     field = fields.ResourceField(name='resource', resource_type=Resource)
     field.value = Resource()
 
+    assert field.validate() == []
     assert field.name == 'resource'
-    assert field.resource_type == Resource
     assert isinstance(field.value, Resource)
 
 
@@ -131,9 +130,9 @@ def test_fail_invalid_resource_in_resource_field_value(application):
         pass
 
     field = fields.ResourceField(name='resource', resource_type=SpecificResource)
+    field.value = Resource()
 
-    with pytest.raises(TypeError):
-        field.value = Resource()
+    assert field.validate()[0].message == 'Invalid value type for this field'
 
 
 def test_basic_resource_list_field():
@@ -152,25 +151,25 @@ def test_fail_invalid_resource_in_resource_list_field_value(application):
 
     field = fields.ResourceListField(name='resource', resource_type=SpecificResource)
 
-    with pytest.raises(TypeError):
-        field.value = SpecificResource()  # not list
+    field.value = SpecificResource()  # not list
+    assert field.validate()[0].message == 'Field must be a list or tuple'
 
-    with pytest.raises(TypeError):
-        field.value = [Resource()]
+    field.value = [Resource()]
+    assert field.validate()[0].message == 'Invalid value type for this field'
 
 
 def test_field_validation():
     field = fields.CharField(name='name', max_length=255, validators=[fields.Required()])
 
-    with pytest.raises(ValidationError):
-        field.validate()
+    with pytest.raises(ValidationException):
+        field.validate(raise_exception=True)
 
 
 def test_skip_field_validation_lazy_fields():
     field = fields.CharField(name='name', max_length=255, lazy=True, validators=[fields.Required()])
     field.validate(include_lazy=False)
-    with pytest.raises(ValidationError):
-        field.validate()
+    with pytest.raises(ValidationException):
+        field.validate(raise_exception=True)
 
 
 def test_field_dirtyness():
