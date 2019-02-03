@@ -28,12 +28,20 @@ class Required(Validator):
 
 class Length(Validator):
     def __init__(self, min_length=None, max_length=None):
+        if min_length is not None and max_length is not None and min_length > max_length:
+            raise ValueError('Invalid length specification')
+
         self.min_length = min_length
         self.max_length = max_length
 
     def validate(self, field):
+        value = field.value
+
+        if value is None:
+            return
+
         try:
-            length = len(field.value)
+            length = len(value)
         except TypeError:
             return self._error('Value has no length', field)
 
@@ -68,10 +76,13 @@ class Type(Validator):
     def __init__(self, allowed_types=None):
         if allowed_types is None:
             allowed_types = ()
-        self.allowed_types = allowed_types
+        self.allowed_types = tuple(allowed_types)
 
     def validate(self, field):
-        if not isinstance(field.value, tuple(self.allowed_types)):
+        if field.value is None:
+            return
+
+        if not isinstance(field.value, self.allowed_types):
             return self._error(f'Invalid value type for this field', field)
 
 

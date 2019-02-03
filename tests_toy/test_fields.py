@@ -5,6 +5,7 @@ import pytest
 
 from toy import fields
 from toy.exceptions import ValidationException
+from toy.fields import Field
 from toy.resources import Resource
 
 
@@ -43,10 +44,16 @@ def test_error_invalid_char_field():
 
 
 def test_check_equality_with_char_value():
-    field = fields.CharField(name='test', max_length=100)
-    field.value = 'value'
+    field1 = fields.CharField(name='test', max_length=100)
+    field1.value = 'value'
 
-    assert field == 'value'
+    field2 = fields.CharField(name='test', max_length=100)
+    field2.value = 'value'
+
+    assert field1 == 'value'
+    assert field2 == 'value'
+    assert field1 == field2
+    assert field1 is not field2
 
 
 def test_basic_integer_field():
@@ -65,21 +72,6 @@ def test_integer_field_with_range():
     assert field.validate() == []
     assert field.name == 'int'
     assert field.value == 7
-
-
-def test_fail_integer_field_invalid_value_range():
-    with pytest.raises(ValueError):
-        fields.IntegerField(name='int', min_value=10, max_value=5)
-
-
-def test_fail_invalid_value_in_integer_field():
-    field = fields.IntegerField(name='int', min_value=5, max_value=10)
-
-    field.value = 100
-    assert field.validate()[0].message == 'Invalid max value'
-
-    field.value = 1
-    assert field.validate()[0].message == 'Invalid min value'
 
 
 def test_fail_invalid_type_in_integer_field():
@@ -103,7 +95,7 @@ def test_basic_boolean_field():
 def test_fail_invalid_value_in_boolean_field():
     field = fields.BooleanField(name='bool')
 
-    field.value = None
+    field.value = ''
     assert field.validate()[0].message == 'Invalid value type for this field'
 
 
@@ -158,11 +150,91 @@ def test_fail_invalid_resource_in_resource_list_field_value(application):
     assert field.validate()[0].message == 'Invalid value type for this field'
 
 
-def test_field_validation():
+def test_fail_resource_list_field_resource_type():
+    with pytest.raises(TypeError):
+        fields.ResourceListField(name='resource_list', resource_type=object)
+
+
+def test_fail_invalid_validator():
+    with pytest.raises(TypeError):
+        Field(name='field', validators=[object()])
+
+
+def test_field_required_validation():
     field = fields.CharField(name='name', max_length=255, validators=[fields.Required()])
 
-    with pytest.raises(ValidationException):
-        field.validate(raise_exception=True)
+    errors = field.validate()
+    assert errors[0].message == 'Required field'
+
+
+def test_type_validation():
+    validation = fields.Type()
+    assert validation.allowed_types == ()
+
+    validation = fields.Type([str])
+    assert validation.allowed_types == (str,)
+
+
+def test_length_validation():
+    validation = fields.Length(min_length=5, max_length=10)
+
+    assert validation.min_length == 5
+    assert validation.max_length == 10
+
+
+def test_fail_invalid_length_validation():
+    with pytest.raises(ValueError):
+        fields.Length(min_length=10, max_length=5)
+
+
+def test_field_length_validation():
+    field = fields.CharField(name='name', max_length=10, validators=[fields.Length(min_length=5)])
+
+    field.value = 'X' * 5
+    field.validate(raise_exception=True)
+
+    field.value = 'X'
+    errors = field.validate()
+    assert errors[0].message == 'Invalid min length'
+
+    field.value = 'X' * 15
+    errors = field.validate()
+    assert errors[0].message == 'Invalid max length'
+
+    field.value = 0
+    errors = field.validate()
+    assert errors[1].message == 'Value has no length'
+
+
+def test_range_validation():
+    validation = fields.Range(min_value=5, max_value=10)
+
+    assert validation.min_value == 5
+    assert validation.max_value == 10
+
+
+def test_fail_invalid_range_validation():
+    with pytest.raises(ValueError):
+        fields.Range(min_value=10, max_value=5)
+
+
+def test_field_range_validation():
+    field = fields.IntegerField(name='int', min_value=5, max_value=10)
+
+    field.value = 5
+    field.validate(raise_exception=True)
+
+    field.value = 1
+    errors = field.validate()
+    assert errors[0].message == 'Invalid min value'
+
+    field.value = 15
+    errors = field.validate()
+    assert errors[0].message == 'Invalid max value'
+
+    field.value = None
+    errors = field.validate()
+    assert errors[0].message == 'Invalid value type for this field'
 
 
 def test_skip_field_validation_lazy_fields():
