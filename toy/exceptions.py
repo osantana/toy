@@ -18,9 +18,6 @@ class ValidationError:
 
 
 class ValidationException(ToyException):
-    def __init__(self, message, errors=None, *args):
+    def __init__(self, message, errors, *args):
         super().__init__(message, *args)
-
-        if errors is None:
-            errors = {}
         self.errors = errors
