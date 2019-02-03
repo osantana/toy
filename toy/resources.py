@@ -97,16 +97,16 @@ class Resource:
 
     @classmethod
     def do_get(cls, request=None, application_args=None):  # maps to get
-        raise NotImplementedError('Abstract class')
+        pass
 
     def do_create(self):  # maps to post
-        raise NotImplementedError('Abstract class')
+        pass
 
     def do_replace(self):  # maps to put
-        raise NotImplementedError('Abstract class')
+        pass
 
     def do_change(self, **kwargs):  # maps to patch
-        raise NotImplementedError('Abstract class')
+        pass
 
 
 class Processor:
