@@ -76,3 +76,11 @@ def test_match_multople_routes_in_routes(handler):
 
     assert routes.match("/")[0].path == r'^/$'
     assert routes.match("/")[1].path == r'^/(?P<arg>.*)$'
+
+
+def test_fail_add_same_route_twice(handler):
+    routes = Routes()
+    routes.add_route(r'/', handler)
+
+    with pytest.raises(ValueError):
+        routes.add_route(r'/', handler)

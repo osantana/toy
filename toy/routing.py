@@ -29,6 +29,9 @@ class Route:
     def __repr__(self):
         return f'<Route {self.path} {self.handler.__class__.__name__}>'
 
+    def __eq__(self, other):
+        return self.pattern == other.pattern and self.handler == other.handler
+
 
 class Routes:
     def __init__(
@@ -51,7 +54,7 @@ class Routes:
         return self._routes[item]
 
     def add(self, route: Route):
-        if route in self._routes:
+        if [r for r in self._routes if r == route]:
             raise ValueError('Duplicated route/handler')
 
         self._routes.append(route)
