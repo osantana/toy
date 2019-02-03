@@ -66,8 +66,11 @@ def test_bad_request_resource_handler_creation_missing_required_argument(envbuil
 
 def test_resource_handler_route_resolver(basic_resource_class):
     class MyResourceHandler(ResourceHandler):
-        route_template = '/<slug>'
+        route_template = '/<get_id>/<slug>'
+
+        def get_id(self, _):
+            return 'id'
 
     resource = basic_resource_class.get()
     handler = MyResourceHandler()
-    assert handler.get_route(resource) == '/my-name'
+    assert handler.get_route(resource) == '/id/my-name'

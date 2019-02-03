@@ -50,13 +50,14 @@ class ResourceHandler(Handler):
     route_template = ''
 
     def get_route(self, resource: Resource):
-        route_args = set(re.findall(r'<(.*)>', self.route_template))
+        route_args = set(re.findall(r'<(.*?)>', self.route_template))
         route = self.route_template
         for arg in route_args:
+            value = None
             try:
-                value = getattr(resource, arg)
-                if callable(value):
-                    value = value(self)
+                attr = getattr(self, arg)
+                if callable(attr):
+                    value = attr(resource)
             except AttributeError:
                 value = resource.data[arg]
 
