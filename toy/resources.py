@@ -2,7 +2,7 @@ from typing import Optional
 
 from staty import HTTPStatus, Ok
 
-from toy.exceptions import ValidationException, ValidationError
+from toy.exceptions import ValidationError, ValidationException
 from .http import Request, Response
 from .serializers import serializers
 
@@ -79,9 +79,13 @@ class Resource:
         return resource
 
     def create(self):
-        self.validate(include_lazy=False)
+        errors = self.validate(include_lazy=False)
+        if errors:
+            return errors
+
         self.do_create()
-        self.validate()
+
+        return self.validate()
 
     def replace(self):
         self.validate()

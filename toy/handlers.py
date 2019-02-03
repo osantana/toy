@@ -1,7 +1,10 @@
-from staty import InternalServerError, MethodNotAllowedException, NotFound, Created
+import re
 
-from .resources import Processor
+from staty import BadRequestException, Created, InternalServerError, MethodNotAllowedException, NotFound
+
+from . import fields
 from .http import HTTP_METHODS, Request, Response
+from .resources import Processor, Resource
 
 
 class Handler:
@@ -28,8 +31,38 @@ class Handler:
         return self.dispatch(request)
 
 
+class ValidationErrorResource(Resource):
+    fields = [
+        fields.CharField(name='message', max_length=255),
+        fields.CharField(name='name', max_length=255),
+        fields.CharField(name='value', max_length=255),
+    ]
+
+
+class BadRequestResource(Resource):
+    fields = [
+        fields.ResourceListField(name='errors', resource_type=ValidationErrorResource)
+    ]
+
+
 class ResourceHandler(Handler):
     resource_class = None
+    route_template = ''
+
+    def get_route(self, resource: Resource):
+        route_args = set(re.findall(r'<(.*)>', self.route_template))
+        route = self.route_template
+        for arg in route_args:
+            try:
+                value = getattr(resource, arg)
+                if callable(value):
+                    value = value(self)
+            except AttributeError:
+                value = resource.data[arg]
+
+            route = route.replace(f'<{arg}>', f'{value}')
+
+        return route
 
     def post(self, request):
         resource = self.resource_class(
@@ -41,13 +74,18 @@ class ResourceHandler(Handler):
         data = processor.get_data()
 
         resource.update(data)
-        resource.create()
+        errors = resource.create()
+        if errors:
+            raise BadRequestException()
 
-        # TODO: Location header
+        headers = {
+            'Location': self.get_route(resource),
+        }
 
         return processor.get_response(
             data=resource.data,
             status=Created(),
+            headers=headers,
         )
 
 

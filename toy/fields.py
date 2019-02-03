@@ -11,12 +11,6 @@ from .resources import Resource
 #  - support for time field
 #  - support for timedelta field
 
-class _NotSet:
-    pass
-
-
-not_set = _NotSet()
-
 
 class Validator:
     def _error(self, message, field):
@@ -28,7 +22,7 @@ class Validator:
 
 class Required(Validator):
     def validate(self, field):
-        if field.value == not_set or not field.value:
+        if not field.value:
             return self._error('Required field', field)
 
 
@@ -77,9 +71,6 @@ class Type(Validator):
         self.allowed_types = allowed_types
 
     def validate(self, field):
-        if field.value == not_set:
-            return
-
         if not isinstance(field.value, tuple(self.allowed_types)):
             return self._error(f'Invalid value type for this field', field)
 
@@ -110,8 +101,8 @@ class Field:
                     raise TypeError('Invalid validator')
                 self.validators.append(validator)
 
-        self._old_value = not_set
-        self._value = not_set
+        self._old_value = None
+        self._value = None
 
     @property
     def dirty(self):

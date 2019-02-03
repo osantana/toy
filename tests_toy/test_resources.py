@@ -13,11 +13,14 @@ def test_basic_resource():
             fields.CharField(name='description', max_length=255)
         ]
 
-    resource = MyResource()
+    resource = MyResource(
+        name='My Name',
+        description='My Description'
+    )
 
-    assert isinstance(resource, MyResource)
-    assert 'name' in resource
-    assert 'description' in resource
+    assert isinstance(resource, Resource)
+    assert resource['name'] == 'My Name'
+    assert resource['description'] == 'My Description'
 
 
 def test_fail_abstract_resource():
@@ -25,14 +28,11 @@ def test_fail_abstract_resource():
     class MyResource(Resource):
         pass
 
-    resource = MyResource()
-
     with pytest.raises(NotImplementedError):
-        resource.get()
+        MyResource.get()
 
 
 def test_basic_resource_update(resource):
-    resource.get()
     resource.update({
         'name': 'My New Name',
     })
@@ -40,12 +40,12 @@ def test_basic_resource_update(resource):
     assert resource['name'] == 'My New Name'
 
 
-def test_basic_resource_data(resource):
-    resource.get()
-
+def test_basic_resource_data(basic_resource_class):
+    resource = basic_resource_class.get()
     assert resource.data == {
         'name': 'My Name',
         'description': 'My Description',
+        'slug': 'my-name',
     }
 
 
@@ -101,7 +101,8 @@ def test_fail_validate_resource_missing_field(basic_resource_class):
 
     exc = exc_info.value
     assert len(exc.errors) == 1
-    assert exc.errors['slug'][0].message == 'Required field'
+    assert exc.errors['slug'][0].message == 'Invalid value type for this field'
+    assert exc.errors['slug'][1].message == 'Required field'
 
 
 def test_fail_validate_resource_unknown_field(basic_resource_class):
