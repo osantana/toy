@@ -11,10 +11,10 @@ class Serializer:
     content_type = None
 
     def load(self, stream):
-        raise NotImplementedError('Abstract class')
+        raise NotImplementedError('Abstract class')  # pragma: nocover
 
     def dump(self, obj):
-        raise NotImplementedError('Abstract class')
+        raise NotImplementedError('Abstract class')  # pragma: nocover
 
 
 class SerializersManager:
