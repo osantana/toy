@@ -23,15 +23,6 @@ def test_basic_resource():
     assert resource['description'] == 'My Description'
 
 
-def test_fail_abstract_resource():
-    # noinspection PyAbstractClass
-    class MyResource(Resource):
-        pass
-
-    with pytest.raises(NotImplementedError):
-        MyResource.get()
-
-
 def test_basic_resource_update(resource):
     resource.update({
         'name': 'My New Name',
@@ -101,8 +92,7 @@ def test_fail_validate_resource_missing_field(basic_resource_class):
 
     exc = exc_info.value
     assert len(exc.errors) == 1
-    assert exc.errors['slug'][0].message == 'Invalid value type for this field'
-    assert exc.errors['slug'][1].message == 'Required field'
+    assert exc.errors['slug'][0].message == 'Required field'
 
 
 def test_fail_validate_resource_unknown_field(basic_resource_class):
@@ -129,3 +119,14 @@ def test_validate_resource_unknown_extra_field(basic_resource_class):
         unknown='error'
     )
     assert resource.validate() == {}
+
+
+def test_fail_silently_test_validate_resource_all_fields(basic_resource_class):
+    resource = basic_resource_class(
+        name='X' * 256,  # max_length = 255
+    )
+    errors = resource.validate()
+
+    assert errors['name'][0].message == 'Invalid max length'
+    assert errors['slug'][0].message == 'Required field'
+    assert 'description' not in errors  # description is optional field
