@@ -1,15 +1,15 @@
-from toy.handlers import Handler
+from toy.handlers import ResourceHandler
 
 MAX_PAGE_SIZE = 50
 
 
-class Recipes(Handler):
-    pass
+class Recipes(ResourceHandler):
+    route_template = '/recipes'
 
 
-class Recipe(Handler):
-    pass
+class Recipe(ResourceHandler):
+    route_template = '/recipes/<id>'
 
 
-class Rating(Handler):
-    pass
+class Rating(ResourceHandler):
+    route_template = '/recipes/<id>/rating'
