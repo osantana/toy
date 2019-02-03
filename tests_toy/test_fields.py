@@ -4,7 +4,7 @@ from uuid import uuid4
 import pytest
 
 from toy import fields
-from toy.exceptions import ValidationException
+from toy.exceptions import ValidationError, ValidationException
 from toy.fields import Field
 from toy.resources import Resource
 
@@ -165,6 +165,15 @@ def test_field_required_validation():
 
     errors = field.validate()
     assert errors[0].message == 'Required field'
+
+
+def test_basic_validation_error():
+    error = ValidationError('message', 'name', 'value')
+
+    assert error.message == 'message'
+    assert error.name == 'name'
+    assert error.value == 'value'
+    assert repr(error) == "<ValidationError message 'name' 'value'>"
 
 
 def test_type_validation():
