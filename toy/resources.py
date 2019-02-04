@@ -82,13 +82,9 @@ class Resource:
         return resource
 
     def create(self):
-        errors = self.validate(include_lazy=False)
-        if errors:
-            return errors
-
+        self.validate(include_lazy=False, raise_exception=True)
         self.do_create()
-
-        return self.validate()
+        return self.validate(raise_exception=True)
 
     def replace(self):
         self.validate()

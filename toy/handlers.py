@@ -1,8 +1,9 @@
 import re
 
-from staty import BadRequestException, Created, InternalServerError, MethodNotAllowedException, NotFound
+from staty import BadRequest, Created, InternalServerError, MethodNotAllowedException, NotFound
 
 from . import fields
+from .exceptions import ValidationException
 from .http import HTTP_METHODS, Request, Response
 from .resources import Processor, Resource
 
@@ -31,22 +32,24 @@ class Handler:
         return self.dispatch(request)
 
 
-class ValidationErrorResource(Resource):
+class ErrorResource(Resource):
     fields = [
-        fields.CharField(name='message', max_length=255),
-        fields.CharField(name='name', max_length=255),
-        fields.CharField(name='value', max_length=255),
+        fields.CharField(name='message', max_length=255, required=True),
     ]
 
 
-class BadRequestResource(Resource):
+class ErrorResponseResource(Resource):
     fields = [
-        fields.ResourceListField(name='errors', resource_type=ValidationErrorResource)
+        fields.ResourceListField(name='errors', resource_type=ErrorResource)
     ]
+
+    def update(self, errors):
+        print(errors)
 
 
 class ResourceHandler(Handler):
     resource_class = None
+    error_response_resource_class = ErrorResponseResource
     route_template = ''
 
     def get_route(self, resource: Resource):
@@ -65,6 +68,17 @@ class ResourceHandler(Handler):
 
         return route
 
+    def _bad_request_error(self, exc, processor, request):
+        resource = self.error_response_resource_class(
+            request=request,
+            application_args=self.application_args,
+        )
+        resource.update(exc.errors)
+        return processor.get_response(
+            data=resource.data,
+            status=BadRequest(),
+        )
+
     def post(self, request):
         resource = self.resource_class(
             request=request,
@@ -75,9 +89,11 @@ class ResourceHandler(Handler):
         data = processor.get_data()
 
         resource.update(data)
-        errors = resource.create()
-        if errors:
-            raise BadRequestException()
+
+        try:
+            resource.create()
+        except ValidationException as exc:
+            return self._bad_request_error(exc, processor, request)
 
         headers = {
             'Location': self.get_route(resource),
