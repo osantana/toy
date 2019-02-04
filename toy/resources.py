@@ -20,10 +20,13 @@ class Resource:
 
         self._fields = {}
         for field in self.fields:
-            if field.name in self._fields:
+            field_copy = field.copy()
+            if field_copy.name in self._fields:
                 raise TypeError('Duplicated field name')
 
-            self._fields[field.name] = field
+            self._fields[field_copy.name] = field_copy
+            field_copy.request = request
+            field_copy.application_args = application_args
 
         self._extra_data = {}
         self.update(data)
@@ -69,7 +72,7 @@ class Resource:
     def data(self):
         result = {}
         for key, field in self._fields.items():
-            result[key] = field.value
+            result[key] = field.data
         return result
 
     @classmethod

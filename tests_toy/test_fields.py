@@ -99,12 +99,19 @@ def test_fail_invalid_value_in_boolean_field():
 
 
 def test_basic_resource_field():
-    field = fields.ResourceField(name='resource', resource_type=Resource)
-    field.value = Resource()
+    class MyResource(Resource):
+        fields = [
+            fields.CharField(name='name', max_length=255),
+        ]
+    field = fields.ResourceField(name='resource', resource_type=MyResource)
+    field.value = {'name': 'My Name'}
 
     assert field.validate() == []
     assert field.name == 'resource'
-    assert isinstance(field.value, Resource)
+    assert field.resource_type == MyResource
+    assert isinstance(field.value, MyResource)
+    assert field.value['name'] == 'My Name'
+    assert isinstance(field.data, dict)
 
 
 def test_fail_invalid_resource_type_in_resource_field():

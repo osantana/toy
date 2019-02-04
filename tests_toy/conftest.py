@@ -161,3 +161,43 @@ def post_request(envbuilder):
         input_stream=json.dumps(data),
     )
     return Request(environ)
+
+
+@pytest.fixture
+def component_resource_class():
+    class MyResourceItem(Resource):
+        fields = [
+            fields.CharField(name='name', max_length=255),
+        ]
+
+    return MyResourceItem
+
+
+@pytest.fixture
+def composite_resource_class(component_resource_class):
+    class MyResource(Resource):
+        fields = [
+            fields.CharField(name='name', max_length=255),
+            fields.ResourceField(name='sub_item', resource_type=component_resource_class),
+            fields.ResourceListField(name='items', resource_type=component_resource_class),
+        ]
+
+    return MyResource
+
+
+@pytest.fixture
+def compound_resource(composite_resource_class):
+    data = {
+        'name': 'My Resource',
+        'sub_item': {
+            'name': 'My Individual Sub Resource',
+        },
+        'items': [
+            {'name': 'My Resource Item #1'},
+            {'name': 'My Resource Item #2'},
+            {'name': 'My Resource Item #3'},
+        ],
+    }
+    resource = composite_resource_class()
+    resource.update(data)
+    return resource

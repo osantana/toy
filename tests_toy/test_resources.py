@@ -130,3 +130,88 @@ def test_fail_silently_test_validate_resource_all_fields(basic_resource_class):
     assert errors['name'][0].message == 'Invalid max length'
     assert errors['slug'][0].message == 'Required field'
     assert 'description' not in errors  # description is optional field
+
+
+def test_basic_compound_resource():
+    class MyResourceItem(Resource):
+        fields = [
+            fields.CharField(name='name', max_length=255),
+        ]
+
+    class MyResource(Resource):
+        fields = [
+            fields.CharField(name='name', max_length=255),
+            fields.ResourceField(name='sub_item', resource_type=MyResourceItem),
+            fields.ResourceListField(name='items', resource_type=MyResourceItem),
+        ]
+
+    data = {
+        'name': 'My Resource',
+        'sub_item': {
+            'name': 'My Individual Sub Resource',
+        },
+        'items': [
+            {'name': 'My Resource Item #1'},
+            {'name': 'My Resource Item #2'},
+            {'name': 'My Resource Item #3'},
+        ],
+    }
+    resource = MyResource()
+    resource.update(data)
+
+    assert resource['name'] == 'My Resource'
+    assert isinstance(resource['sub_item'], MyResourceItem)
+    assert resource['sub_item']['name'] == 'My Individual Sub Resource'
+    assert isinstance(resource['items'][0], MyResourceItem)
+
+    item = resource['items'][0]
+    assert item['name'] == 'My Resource Item #1'
+
+    item = resource['items'][1]
+    assert item['name'] == 'My Resource Item #2'
+
+    item = resource['items'][2]
+    assert item['name'] == 'My Resource Item #3'
+
+
+def test_compound_resource_data_load(compound_resource, component_resource_class):
+    assert compound_resource['name'] == 'My Resource'
+    assert isinstance(compound_resource['sub_item'], component_resource_class)
+    assert compound_resource['sub_item']['name'] == 'My Individual Sub Resource'
+    assert isinstance(compound_resource['items'][0], component_resource_class)
+
+    item = compound_resource['items'][0]
+    assert isinstance(item, component_resource_class)
+    assert item['name'] == 'My Resource Item #1'
+
+    item = compound_resource['items'][1]
+    assert isinstance(item, component_resource_class)
+    assert item['name'] == 'My Resource Item #2'
+
+    item = compound_resource['items'][2]
+    assert isinstance(item, component_resource_class)
+    assert item['name'] == 'My Resource Item #3'
+
+
+def test_compound_resource_data_dump(compound_resource):
+    data = compound_resource.data
+
+    assert isinstance(data, dict)
+    assert data['name'] == 'My Resource'
+
+    assert isinstance(data['sub_item'], dict)
+    assert data['sub_item']['name'] == 'My Individual Sub Resource'
+
+    assert isinstance(data['items'], (tuple, list))
+
+    item = data['items'][0]
+    assert isinstance(item, dict)
+    assert item['name'] == 'My Resource Item #1'
+
+    item = data['items'][1]
+    assert isinstance(item, dict)
+    assert item['name'] == 'My Resource Item #2'
+
+    item = data['items'][2]
+    assert isinstance(item, dict)
+    assert item['name'] == 'My Resource Item #3'

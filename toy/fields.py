@@ -2,8 +2,8 @@ from typing import Optional
 from uuid import UUID
 
 from .exceptions import ValidationException
-from .validators import Validator, Required, Length, Range, Type, TypeList
 from .resources import Resource
+from .validators import Length, Range, Required, Type, TypeList, Validator
 
 
 # TODO:
@@ -14,24 +14,45 @@ from .resources import Resource
 
 
 class Field:
-    default_validators = []
+    default_validators = set()
 
-    def __init__(self, name, required=False, lazy=False, validators=None):
+    def __init__(self, name, lazy=False, required=False, validators=None, *args, **kwargs):
         self.name = name
         self.lazy = lazy
 
-        self.validators = self.default_validators[:]
+        self.validators = set(self.default_validators)
         if validators is not None:
             for validator in validators:
                 if not isinstance(validator, Validator):
                     raise TypeError('Invalid validator')
-                self.validators.append(validator)
+                self.validators.add(validator)
 
         if required:
-            self.validators.append(Required())
+            self.validators.add(Required())
 
         self._old_value = None
         self._value = None
+
+        self.request = None
+        self.application_args = None
+        self._args = args
+        self._kwargs = kwargs
+
+    def copy(self):
+        return self.__class__(
+            name=self.name,
+            lazy=self.lazy,
+            validators=self.validators,
+            *self._args,
+            **self._kwargs,
+        )
+
+    def _get_data(self):
+        return self.value
+
+    @property
+    def data(self):
+        return self._get_data()
 
     @property
     def dirty(self):
@@ -41,12 +62,7 @@ class Field:
     def old_value(self):
         return self._old_value
 
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, new_value):
+    def _set_value(self, new_value):
         if new_value == self._value:
             return
 
@@ -56,6 +72,14 @@ class Field:
 
         self._old_value = self._value
         self._value = new_value
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        self._set_value(new_value)
 
     def validate(self, include_lazy=True, raise_exception=False):
         if not include_lazy and self.lazy:
@@ -90,16 +114,16 @@ class CharField(Field):
     default_validators = [Type([str])]
 
     def __init__(self, name, max_length, *args, **kwargs):
-        super().__init__(name, *args, **kwargs)
-        self.validators.append(Length(max_length=max_length))
+        super().__init__(name, max_length=max_length, *args, **kwargs)
+        self.validators.add(Length(max_length=max_length))
 
 
 class IntegerField(Field):
     default_validators = [Type([int])]
 
     def __init__(self, name, min_value: Optional[int] = None, max_value: Optional[int] = None, *args, **kwargs):
-        super().__init__(name, *args, **kwargs)
-        self.validators.append(Range(min_value=min_value, max_value=max_value))
+        super().__init__(name, min_value=min_value, max_value=max_value, *args, **kwargs)
+        self.validators.add(Range(min_value=min_value, max_value=max_value))
 
 
 class BooleanField(Field):
@@ -108,20 +132,62 @@ class BooleanField(Field):
 
 class ResourceField(Field):
     def __init__(self, name, resource_type, *args, **kwargs):
-        super().__init__(name, *args, **kwargs)
+        super().__init__(name, resource_type=resource_type, *args, **kwargs)
 
         if not issubclass(resource_type, Resource):
             raise TypeError('Invalid resource type')
 
-        self.validators.append(Type([resource_type]))
-
-
-class ResourceListField(Field):
-    def __init__(self, name, resource_type, *args, **kwargs):
-        super().__init__(name, *args, **kwargs)
-
-        if not issubclass(resource_type, Resource):
-            raise TypeError('Invalid resource type')
+        self.validators.add(Type([resource_type]))
 
         self.resource_type = resource_type
-        self.validators.append(TypeList([resource_type]))
+
+    def _set_value(self, new_value):
+        if isinstance(new_value, Resource):
+            return super()._set_value(new_value)  # to be .validate()'d
+
+        resource = self.resource_type(
+            request=self.request,
+            application_args=self.application_args,
+        )
+        resource.update(new_value)
+        super()._set_value(resource)
+
+    def _get_data(self):
+        return self.value.data
+
+
+# TODO: Improvement Points
+#    - Implement a ResourceList object to move out the list management from Field(?)
+#
+class ResourceListField(Field):
+    def __init__(self, name, resource_type, *args, **kwargs):
+        super().__init__(name, resource_type=resource_type, *args, **kwargs)
+
+        if not issubclass(resource_type, Resource):
+            raise TypeError('Invalid resource type')
+
+        self.validators.add(TypeList([resource_type]))
+
+        self.resource_type = resource_type
+
+    def _set_value(self, new_value):
+        if not isinstance(new_value, (list, tuple)):
+            return super()._set_value(new_value)  # to be .validate()'d
+
+        resources = []
+        for item in new_value:
+            if isinstance(item, Resource):
+                resources.append(item)
+                continue
+
+            resource = self.resource_type(
+                request=self.request,
+                application_args=self.application_args,
+            )
+            resource.update(item)
+            resources.append(resource)
+
+        super()._set_value(resources)
+
+    def _get_data(self):
+        return [resource.data for resource in self.value]
