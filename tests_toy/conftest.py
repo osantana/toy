@@ -109,9 +109,9 @@ def basic_resource_class():
     # noinspection PyAbstractClass
     class MyResource(Resource):
         fields = [
-            fields.CharField(name='name', max_length=255, validators=[fields.Required()]),
+            fields.CharField(name='name', max_length=255, required=True),
             fields.CharField(name='description', max_length=255),
-            fields.CharField(name='slug', max_length=255, lazy=True, validators=[fields.Required()]),
+            fields.CharField(name='slug', max_length=255, required=True, lazy=True),
         ]
 
         @classmethod
