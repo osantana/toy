@@ -44,7 +44,7 @@ class ErrorResponseResource(Resource):
     ]
 
     def update(self, errors):
-        print(errors)
+        pass  # TODO: implement this part!!!
 
 
 class ResourceHandler(Handler):
