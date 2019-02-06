@@ -56,19 +56,14 @@ class Request:
 
         self.headers = headers
 
-        has_content_type_header = 'Content-Type' in self.headers
-
-        content_type = self.headers.pop('Content-Type', 'application/octet-stream')
-        content_type, charset = parse_content_type(content_type)
-
+        self.content_type = environ.get('CONTENT_TYPE', 'application/octet-stream')
+        content_type, charset = parse_content_type(self.content_type)
         self.content_type = content_type
         self.charset = charset
+        self.headers['Content-Type'] = f'{self.content_type}; {self.charset}'
 
-        default_accept = self.content_type if has_content_type_header else 'application/octet-stream'
-        self.accept = accept.parse(self.headers.pop('Accept', default_accept))
-
-        default_accept_charset = self.charset if has_content_type_header else 'iso-8859-1, utf-8;q=0.7'
-        accept_charset = self.headers.pop('Accept-Charset', default_accept_charset).lower()
+        accept_charset = self.headers.get('Accept-Charset', self.charset).lower()
+        self.accept = accept.parse(self.headers.get('Accept', self.content_type))
         self.accept_charset = accept.parse(accept_charset)
 
         self.path_arguments = {}
@@ -80,10 +75,8 @@ class Request:
     @property
     def data(self):
         if not self._cached_data:
-            prev = self.content_stream.tell()
             self.content_stream.seek(0)
             content = self.content_stream.read()
-            self.content_stream.seek(prev)
             self._cached_data = content.decode(self.charset)
         return self._cached_data
 

@@ -29,7 +29,10 @@ def test_http_basic_request(envbuilder, binary_content):
     assert request.path == '/'
     assert request.query_string == {'spam': ['1'], 'eggs': ['2']}
     assert request.headers == {
+        'Content-Type': 'application/json; iso-8859-1',
         'Content-Length': '4',
+        'Accept': 'application/json',
+        'Accept-Charset': 'iso-8859-1, utf-8;q=0.7',
     }
     assert repr(request) == '<Request GET />'
     assert request.content_type == 'application/json'
