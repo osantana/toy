@@ -1,7 +1,7 @@
 import pytest
 
-from toy import validators, fields
-from toy.exceptions import ValidationException, ValidationError
+from toy import fields, validators
+from toy.exceptions import ValidationError, ValidationException
 from toy.fields import Field
 
 

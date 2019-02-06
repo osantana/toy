@@ -14,38 +14,49 @@ from .validators import Length, Range, Required, Type, TypeList, Validator
 
 
 class Field:
-    default_validators = set()
+    default_validators = []
 
     def __init__(self, name, lazy=False, required=False, validators=None, *args, **kwargs):
         self.name = name
         self.lazy = lazy
+        self.validators = []
+        self.required = required
 
-        self.validators = set(self.default_validators)
-        if validators is not None:
-            for validator in validators:
-                if not isinstance(validator, Validator):
-                    raise TypeError('Invalid validator')
-                self.validators.add(validator)
-
-        if required:
-            self.validators.add(Required())
+        self._load_validators(validators)
 
         self._old_value = None
         self._value = None
 
         self.request = None
         self.application_args = None
+
         self._args = args
         self._kwargs = kwargs
 
+    def _load_validators(self, validators):
+        self.validators = self.default_validators[:]
+
+        if self.required:
+            self.validators.append(Required())
+
+        if validators is None:
+            return
+
+        for validator in validators:
+            if not isinstance(validator, Validator):
+                raise TypeError('Invalid validator')
+            self.validators.append(validator)
+
     def copy(self):
-        return self.__class__(
+        field = self.__class__(
             name=self.name,
             lazy=self.lazy,
-            validators=self.validators,
+            required=self.required,
             *self._args,
             **self._kwargs,
         )
+        field.validators = self.validators[:]
+        return field
 
     def _get_data(self):
         return self.value
@@ -115,7 +126,7 @@ class CharField(Field):
 
     def __init__(self, name, max_length, *args, **kwargs):
         super().__init__(name, max_length=max_length, *args, **kwargs)
-        self.validators.add(Length(max_length=max_length))
+        self.validators.append(Length(max_length=max_length))
 
 
 class IntegerField(Field):
@@ -123,7 +134,7 @@ class IntegerField(Field):
 
     def __init__(self, name, min_value: Optional[int] = None, max_value: Optional[int] = None, *args, **kwargs):
         super().__init__(name, min_value=min_value, max_value=max_value, *args, **kwargs)
-        self.validators.add(Range(min_value=min_value, max_value=max_value))
+        self.validators.append(Range(min_value=min_value, max_value=max_value))
 
 
 class BooleanField(Field):
@@ -137,7 +148,7 @@ class ResourceField(Field):
         if not issubclass(resource_type, Resource):
             raise TypeError('Invalid resource type')
 
-        self.validators.add(Type([resource_type]))
+        self.validators.append(Type([resource_type]))
 
         self.resource_type = resource_type
 
@@ -166,7 +177,7 @@ class ResourceListField(Field):
         if not issubclass(resource_type, Resource):
             raise TypeError('Invalid resource type')
 
-        self.validators.add(TypeList([resource_type]))
+        self.validators.append(TypeList([resource_type]))
 
         self.resource_type = resource_type
 
