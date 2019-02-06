@@ -37,7 +37,7 @@ def test_basic_allowed_method_call(envbuilder):
 
 def test_basic_resource_handler_creation(envbuilder, basic_resource_class, json_data):
     class MyResourceHandler(ResourceHandler):
-        resource_class = basic_resource_class
+        resource_type = basic_resource_class
         route_template = '/<slug>'
 
     request = Request(envbuilder('POST', '/', input_stream=json_data))
@@ -53,7 +53,7 @@ def test_basic_resource_handler_creation(envbuilder, basic_resource_class, json_
 @pytest.mark.skip('finish error handling at resource handler')
 def test_bad_request_resource_handler_creation_missing_required_argument(envbuilder, basic_resource_class):
     class MyResourceHandler(ResourceHandler):
-        resource_class = basic_resource_class
+        resource_type = basic_resource_class
         route_template = '/<slug>'
 
     json_data = json.dumps({'name': 'foo'})  # missing slug

@@ -48,7 +48,7 @@ class ErrorResponseResource(Resource):
 
 
 class ResourceHandler(Handler):
-    resource_class = None
+    resource_type = None
     error_response_resource_class = ErrorResponseResource
     route_template = ''
 
@@ -80,7 +80,7 @@ class ResourceHandler(Handler):
         )
 
     def post(self, request):
-        resource = self.resource_class(
+        resource = self.resource_type(
             request=request,
             application_args=self.application_args,
         )
