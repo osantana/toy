@@ -8,7 +8,7 @@ from . import handlers
 class RecipesApp(Application):
     def initialize(self):
         self.config['debug'] = config('DEBUG', default=False, cast=config.boolean)
-        self.config['database_url'] = config('DATABASE_URL')
+        self.config.setdefault('database_url', config('DATABASE_URL'))
 
         recipe_handler = handlers.Recipe(application=self)
         self.add_route(r'/recipes', handlers.Recipes(application=self))  # GET only
@@ -17,7 +17,7 @@ class RecipesApp(Application):
         self.add_route(r'/recipes/(?P<id>\d+)/rating', handlers.Rating(application=self))
 
 
-def get_app():
-    app = RecipesApp()
+def get_app(**kwargs):
+    app = RecipesApp(**kwargs)
     get_db(app)
     return app

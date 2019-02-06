@@ -1,9 +1,10 @@
 from datetime import timedelta
 
 import pytest
+from webtest import TestApp
 
+from recipes.application import get_app
 from recipes.models import Recipe
-from toy.application import Application
 
 
 @pytest.fixture
@@ -13,7 +14,13 @@ def database_url():
 
 @pytest.fixture
 def application(database_url):
-    return Application(database_url=database_url)
+    app = get_app(database_url=database_url)
+    return app
+
+
+@pytest.fixture
+def client(application):
+    return TestApp(application)
 
 
 @pytest.fixture

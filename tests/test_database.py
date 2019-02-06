@@ -1,3 +1,4 @@
+from recipes.application import RecipesApp
 from recipes.database import Database, get_db
 
 
@@ -17,8 +18,10 @@ def test_database_init_db(application):
     assert application.extensions['db'] == db
 
 
-def test_database_get_db(application):
-    get_db()
+def test_database_get_db():
+    application = RecipesApp()
+    db = get_db()
+    assert db is not None
     assert 'db' not in application.extensions
 
 
