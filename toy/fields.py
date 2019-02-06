@@ -164,6 +164,8 @@ class ResourceField(Field):
         super()._set_value(resource)
 
     def _get_data(self):
+        if self.value is None:
+            return
         return self.value.data
 
 
@@ -201,4 +203,6 @@ class ResourceListField(Field):
         super()._set_value(resources)
 
     def _get_data(self):
+        if self.value is None:
+            return
         return [resource.data for resource in self.value]

@@ -103,6 +103,7 @@ def test_basic_resource_field():
         fields = [
             fields.CharField(name='name', max_length=255),
         ]
+
     field = fields.ResourceField(name='resource', resource_type=MyResource)
     field.value = {'name': 'My Name'}
 
@@ -112,6 +113,21 @@ def test_basic_resource_field():
     assert isinstance(field.value, MyResource)
     assert field.value['name'] == 'My Name'
     assert isinstance(field.data, dict)
+    assert field.data == {'name': 'My Name'}
+
+
+def test_empty_resource_field():
+    class MyResource(Resource):
+        fields = [
+            fields.CharField(name='name', max_length=255),
+        ]
+
+    field = fields.ResourceField(name='resource', resource_type=MyResource)
+
+    assert field.validate() == []
+    assert field.name == 'resource'
+    assert field.resource_type == MyResource
+    assert field.data is None
 
 
 def test_fail_invalid_resource_type_in_resource_field():
@@ -131,6 +147,7 @@ def test_fail_invalid_resource_in_resource_field_value(application):
     field.value = Resource()
 
     assert field.validate()[0].message == 'Invalid value type for this field'
+    assert field.data == {}
 
 
 def test_basic_resource_list_field():
@@ -140,6 +157,15 @@ def test_basic_resource_list_field():
     assert field.name == 'resource_list'
     assert field.resource_type == Resource
     assert isinstance(field.value[0], Resource)
+    assert field.data == [{}]
+
+
+def test_empty_resource_list_field():
+    field = fields.ResourceListField(name='resource_list', resource_type=Resource)
+
+    assert field.name == 'resource_list'
+    assert field.resource_type == Resource
+    assert field.data is None
 
 
 def test_fail_invalid_resource_in_resource_list_field_value(application):
