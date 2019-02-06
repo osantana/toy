@@ -182,6 +182,7 @@ class ResourceListField(Field):
         self.validators.append(TypeList([resource_type]))
 
         self.resource_type = resource_type
+        self._value = []
 
     def _set_value(self, new_value):
         if not isinstance(new_value, (list, tuple)):
@@ -203,6 +204,4 @@ class ResourceListField(Field):
         super()._set_value(resources)
 
     def _get_data(self):
-        if self.value is None:
-            return
         return [resource.data for resource in self.value]

@@ -34,6 +34,7 @@ class Handler:
 
 class ErrorResource(Resource):
     fields = [
+        fields.CharField(name='field', max_length=255, required=True),
         fields.CharField(name='message', max_length=255, required=True),
     ]
 
@@ -44,7 +45,10 @@ class ErrorResponseResource(Resource):
     ]
 
     def update(self, errors):
-        pass  # TODO: implement this part!!!
+        for field_name, error_list in errors.items():
+            for error in error_list:
+                error_resource = ErrorResource(field=field_name, message=error.message)
+                self['errors'].append(error_resource)
 
 
 class ResourceHandler(Handler):

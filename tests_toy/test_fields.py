@@ -165,7 +165,8 @@ def test_empty_resource_list_field():
 
     assert field.name == 'resource_list'
     assert field.resource_type == Resource
-    assert field.data is None
+    assert field.value == []
+    assert field.data == []
 
 
 def test_fail_invalid_resource_in_resource_list_field_value(application):

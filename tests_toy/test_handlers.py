@@ -1,8 +1,6 @@
 import json
 from unittest.mock import Mock
 
-import pytest
-
 from toy.handlers import Handler, ResourceHandler
 from toy.http import Request
 
@@ -50,7 +48,6 @@ def test_basic_resource_handler_creation(envbuilder, basic_resource_class, json_
     assert response.headers['Location'] == '/my-name'
 
 
-@pytest.mark.skip('finish error handling at resource handler')
 def test_bad_request_resource_handler_creation_missing_required_argument(envbuilder, basic_resource_class):
     class MyResourceHandler(ResourceHandler):
         resource_type = basic_resource_class
@@ -60,8 +57,17 @@ def test_bad_request_resource_handler_creation_missing_required_argument(envbuil
     request = Request(envbuilder('POST', '/', input_stream=json_data))
     handler = MyResourceHandler()
 
+    expected_error = json.dumps(json.loads("""
+        {
+          "errors": [
+            {"field": "slug", "message": "Required field"}
+          ]
+        }
+    """))
+
     response = handler(request)
     assert response.status.code == 400
+    assert response.data == expected_error
 
 
 def test_resource_handler_route_resolver(basic_resource_class):
