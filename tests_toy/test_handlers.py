@@ -24,7 +24,7 @@ def test_basic_dispatcher_handler(envbuilder):
 
 def test_basic_allowed_method_call(envbuilder):
     request = Request(envbuilder('GET', '/test'))
-    handler = Handler()
+    handler = Handler(methods=['get'])
 
     handler.get = Mock()
 
@@ -35,6 +35,7 @@ def test_basic_allowed_method_call(envbuilder):
 
 def test_basic_resource_handler_creation(envbuilder, basic_resource_class, json_data):
     class MyResourceHandler(ResourceHandler):
+        allowed_methods = ['post']
         resource_type = basic_resource_class
         route_template = '/<slug>'
 
@@ -50,6 +51,7 @@ def test_basic_resource_handler_creation(envbuilder, basic_resource_class, json_
 
 def test_bad_request_resource_handler_creation_missing_required_argument(envbuilder, basic_resource_class):
     class MyResourceHandler(ResourceHandler):
+        allowed_methods = ['post']
         resource_type = basic_resource_class
         route_template = '/<slug>'
 

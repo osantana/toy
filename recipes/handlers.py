@@ -8,6 +8,7 @@ class Recipes(ResourceHandler):
 
 
 class Recipe(ResourceHandler):
+    allowed_methods = ['post']
     route_template = '/recipes/<id>'
 
 

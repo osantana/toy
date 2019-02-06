@@ -9,13 +9,22 @@ from .resources import Processor, Resource
 
 
 class Handler:
-    def __init__(self, **kwargs):
+    allowed_methods = []
+
+    def __init__(self, methods=None, **kwargs):
         self.application_args = kwargs
+
+        self._methods = set(m.lower() for m in self.allowed_methods)
+
+        if methods is not None:
+            self._methods.update(m.lower() for m in methods)
+
+        self._methods = self._methods.intersection(HTTP_METHODS)  # filter invalid methods
 
     def _find_handler(self, request):
         method = request.method
 
-        if method not in HTTP_METHODS:
+        if method.lower() not in self._methods:
             raise MethodNotAllowedException(f'Method {method} not allowed')
 
         try:

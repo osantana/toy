@@ -85,6 +85,8 @@ def handler(hello_response):
 @pytest.fixture
 def get_handler(hello_response):
     class GetHandler(Handler):
+        allowed_methods = ['get']
+
         # noinspection PyUnusedLocal
         def get(self, request):
             hello_response.data = 'Hello GET!'
@@ -96,6 +98,8 @@ def get_handler(hello_response):
 @pytest.fixture
 def post_handler(hello_response):
     class PostHandler(Handler):
+        allowed_methods = ['post']
+
         # noinspection PyUnusedLocal
         def post(self, request):
             hello_response.data = 'Hello POST!'
