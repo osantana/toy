@@ -120,6 +120,9 @@ class Field:
 class UUIDField(Field):
     default_validators = [Type([UUID])]
 
+    def _get_data(self):
+        return str(self.value)
+
 
 class CharField(Field):
     default_validators = [Type([str])]

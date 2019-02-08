@@ -1,3 +1,6 @@
+from datetime import timedelta
+
+from recipes.models import Recipe
 from toy import fields
 from toy.resources import Resource
 
@@ -18,6 +21,25 @@ class RecipeResource(Resource):
         fields.BooleanField(name='vegetarian', required=True),
         fields.ResourceListField(name='ratings', resource_type=RatingResource),
     ]
+
+    def _get_db(self):
+        app = self.application_args['application']
+        return app.extensions['db']
+
+    def do_create(self):
+        db = self._get_db()
+
+        recipe = Recipe(
+            name=self['name'],
+            prep_time=timedelta(minutes=self['prep_time']),
+            difficulty=self['difficulty'],
+            vegetarian=self['vegetarian'],
+        )
+
+        db.session.add(recipe)
+        db.session.commit()
+
+        self['id'] = recipe.id
 
 
 class RecipesResource(Resource):
