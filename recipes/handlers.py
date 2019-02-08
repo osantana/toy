@@ -16,5 +16,6 @@ class Recipe(ResourceHandler):
 
 
 class Rating(ResourceHandler):
-    route_template = '/recipes/<id>/rating'
+    allowed_methods = ['post']
+    route_template = '/recipes/<id>'
     resource_type = RatingResource

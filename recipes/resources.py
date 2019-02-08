@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from recipes.models import Recipe
+from recipes.models import Rating, Recipe
 from toy import fields
 from toy.resources import Resource
 
@@ -16,6 +16,31 @@ class RatingResource(BaseResource):
         fields.UUIDField(name='id', required=True, lazy=True),
         fields.IntegerField(name='value', min_value=1, max_value=5),
     ]
+
+    def do_create(self):
+        db = self._get_db()
+
+        recipe_id = self.request.path_arguments['id']
+        recipe = db.session.query(Recipe).filter_by(id=recipe_id).first()
+
+        # except KeyError, NotFound:  # TODO: raises 404 on unknown URL
+
+        recipe_resource = RecipeResource(
+            id=recipe.id,
+            name=recipe.name,
+            prep_time=recipe.prep_time.total_seconds() / 60,
+            difficulty=recipe.difficulty,
+            vegetarian=recipe.vegetarian,
+            ratings=recipe.ratings,
+        )
+
+        rating = Rating(recipe_id=recipe.id, value=self['value'])
+        db.session.add(rating)
+        db.session.commit()
+
+        self['id'] = rating.id
+        recipe_resource['ratings'].append(self)
+        return recipe_resource
 
 
 class RecipeResource(BaseResource):

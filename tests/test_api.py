@@ -36,3 +36,22 @@ def test_create_recipe_in_database(client, recipe_data, database):
     assert users[0].difficulty == 1
     assert users[0].vegetarian is True
     assert users[0].ratings == []
+
+
+def test_create_rating(client, saved_recipe, database):
+    rating_data = {
+        'value': 5,
+    }
+    response = client.post_json(f'/recipes/{saved_recipe.id}/rating', rating_data)
+    assert response.status == '201 Created'
+
+    json = response.json
+    recipe_id = json['id']
+
+    assert response.headers['Location'] == f'/recipes/{recipe_id}'
+    assert UUID(recipe_id)
+    assert json['name'] == 'Simple Scrambled Eggs'
+    assert json['prep_time'] == 5
+    assert json['difficulty'] == 1
+    assert json['vegetarian'] is True
+    assert len(json['ratings']) == 1
