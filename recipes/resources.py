@@ -5,14 +5,20 @@ from toy import fields
 from toy.resources import Resource
 
 
-class RatingResource(Resource):
+class BaseResource(Resource):
+    def _get_db(self):
+        app = self.application_args['application']
+        return app.extensions['db']
+
+
+class RatingResource(BaseResource):
     fields = [
         fields.UUIDField(name='id', required=True, lazy=True),
         fields.IntegerField(name='value', min_value=1, max_value=5),
     ]
 
 
-class RecipeResource(Resource):
+class RecipeResource(BaseResource):
     fields = [
         fields.UUIDField(name='id', required=True, lazy=True),
         fields.CharField(name='name', max_length=255, required=True),
@@ -21,10 +27,6 @@ class RecipeResource(Resource):
         fields.BooleanField(name='vegetarian', required=True),
         fields.ResourceListField(name='ratings', resource_type=RatingResource),
     ]
-
-    def _get_db(self):
-        app = self.application_args['application']
-        return app.extensions['db']
 
     def do_create(self):
         db = self._get_db()
@@ -42,5 +44,5 @@ class RecipeResource(Resource):
         self['id'] = recipe.id
 
 
-class RecipesResource(Resource):
+class RecipesResource(BaseResource):
     pass  # TODO

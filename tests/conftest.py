@@ -46,9 +46,27 @@ def client(application):
 
 @pytest.fixture
 def recipe():
-    return Recipe(
-        name='Scrambled Eggs',
-        prep_time=timedelta(minutes=10),
+    recipe = Recipe(
+        name='Simple Scrambled Eggs',
+        prep_time=timedelta(minutes=5),
         difficulty=1,
         vegetarian=True,
     )
+    return recipe
+
+
+@pytest.fixture
+def saved_recipe(database, recipe):
+    database.session.add(recipe)
+    database.session.commit()
+    return recipe
+
+
+@pytest.fixture
+def recipe_data():
+    return {
+        'name': 'Simple Scrambled Eggs',
+        'prep_time': 5,  # minutes
+        'difficulty': 1,
+        'vegetarian': True,
+    }
