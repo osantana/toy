@@ -12,7 +12,7 @@ class RatingResource(Resource):
 class RecipeResource(Resource):
     fields = [
         fields.UUIDField(name='id', required=True, lazy=True),
-        fields.CharField(name='name', max_length='255', required=True),
+        fields.CharField(name='name', max_length=255, required=True),
         fields.IntegerField(name='prep_time', min_value=0, required=True),
         fields.IntegerField(name='difficulty', min_value=1, max_value=3, required=True),
         fields.BooleanField(name='vegetarian', required=True),
