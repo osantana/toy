@@ -1,4 +1,5 @@
 from datetime import timedelta
+from uuid import UUID
 
 from recipes.models import Rating, Recipe
 from toy import fields
@@ -21,7 +22,7 @@ class RatingResource(BaseResource):
         db = self._get_db()
 
         recipe_id = self.request.path_arguments['id']
-        recipe = db.session.query(Recipe).filter_by(id=recipe_id).first()
+        recipe = db.session.query(Recipe).get(UUID(recipe_id))
 
         # except KeyError, NotFound:  # TODO: raises 404 on unknown URL
 
