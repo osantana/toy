@@ -105,16 +105,16 @@ class ResourceHandler(Handler):
         resource.update(data)
 
         try:
-            resource.create()
+            response_resource = resource.create()
         except ValidationException as exc:
             return self._bad_request_error(exc, processor, request)
 
         headers = {
-            'Location': self.get_route(resource),
+            'Location': self.get_route(response_resource),
         }
 
         return processor.get_response(
-            data=resource.data,
+            data=response_resource.data,
             status=Created(),
             headers=headers,
         )

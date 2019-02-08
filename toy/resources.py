@@ -73,35 +73,38 @@ class Resource:
         return result
 
     @classmethod
-    def get(cls, request=None, application_args=None):
+    def get(cls, request=None, application_args=None) -> 'Resource':
         resource = cls.do_get(request, application_args)
         resource.validate()
         return resource
 
-    def create(self):
+    def create(self) -> 'Resource':
         self.validate(include_lazy=False, raise_exception=True)
-        self.do_create()
-        return self.validate(raise_exception=True)
+        resource = self.do_create()
+        self.validate(raise_exception=True)
+        return resource or self
 
-    def replace(self):
+    def replace(self) -> 'Resource':
         self.validate()
-        self.do_replace()
+        resource = self.do_replace()
+        return resource or self
 
-    def change(self, **kwargs):
+    def change(self, **kwargs) -> 'Resource':
         self.validate()
-        self.do_change(**kwargs)
+        resource = self.do_change(**kwargs)
+        return resource or self
 
     @classmethod
-    def do_get(cls, request=None, application_args=None):  # maps to get
+    def do_get(cls, request=None, application_args=None) -> Optional['Resource']:  # maps to get
         pass
 
-    def do_create(self):  # maps to post
+    def do_create(self) -> Optional['Resource']:  # maps to post
         pass
 
-    def do_replace(self):  # maps to put
+    def do_replace(self) -> Optional['Resource']:  # maps to put
         pass
 
-    def do_change(self, **kwargs):  # maps to patch
+    def do_change(self, **kwargs) -> Optional['Resource']:  # maps to patch
         pass
 
 
