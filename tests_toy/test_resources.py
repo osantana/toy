@@ -40,6 +40,17 @@ def test_basic_resource_data(basic_resource_class):
     }
 
 
+def test_fail_duplicated_field():
+    class MyResource(Resource):
+        fields = [
+            fields.CharField(name='name', max_length=255),
+            fields.CharField(name='name', max_length=255),
+        ]
+
+    with pytest.raises(TypeError):
+        MyResource()
+
+
 def test_processor_get_data(post_request):
     processor = Processor(post_request)
     data = processor.get_data()

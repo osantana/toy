@@ -24,6 +24,18 @@ def test_fail_invalid_length_validation():
     with pytest.raises(ValueError):
         validators.Length(min_length=10, max_length=5)
 
+    with pytest.raises(ValueError):
+        validators.Length(min_length=-1, max_length=5)
+
+    with pytest.raises(ValueError):
+        validators.Length(min_length=-5, max_length=-10)
+
+    with pytest.raises(ValueError):
+        validators.Length(min_length='5', max_length=10)
+
+    with pytest.raises(ValueError):
+        validators.Length(min_length=5, max_length='10')
+
 
 def test_field_length_validation():
     field = fields.CharField(name='name', max_length=10, validators=[validators.Length(min_length=5)])

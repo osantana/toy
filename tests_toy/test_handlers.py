@@ -1,6 +1,9 @@
 import json
 from unittest.mock import Mock
 
+import pytest
+from staty import MethodNotAllowedException
+
 from toy.handlers import Handler, ResourceHandler
 from toy.http import Request
 
@@ -31,6 +34,14 @@ def test_basic_allowed_method_call(envbuilder):
     handler(request)
 
     handler.get.assert_called_once_with(request)
+
+
+def test_fail_allowed_but_not_implemented_method(envbuilder):
+    request = Request(envbuilder('GET', '/test'))
+    handler = Handler(methods=['get'])
+
+    with pytest.raises(MethodNotAllowedException):
+        handler(request)
 
 
 def test_basic_resource_handler_creation(envbuilder, basic_resource_class, json_data):

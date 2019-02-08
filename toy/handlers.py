@@ -19,7 +19,8 @@ class Handler:
         if methods is not None:
             self._methods.update(m.lower() for m in methods)
 
-        self._methods = self._methods.intersection(HTTP_METHODS)  # filter invalid methods
+        # exclude invalid methods
+        self._methods = self._methods.intersection(m.lower() for m in HTTP_METHODS)
 
     def _find_handler(self, request):
         method = request.method

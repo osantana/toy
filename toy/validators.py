@@ -16,8 +16,17 @@ class Required(Validator):
 
 
 class Length(Validator):
-    def __init__(self, min_length=None, max_length=None):
-        if min_length is not None and max_length is not None and min_length > max_length:
+    def __init__(self, min_length=0, max_length=None):
+        if min_length and not isinstance(min_length, int):
+            raise ValueError('Invalid length specification')
+
+        if max_length is not None and not isinstance(max_length, int):
+            raise ValueError('Invalid length specification')
+
+        if min_length and max_length is not None and min_length > max_length:
+            raise ValueError('Invalid length specification')
+
+        if min_length < 0 or (max_length is not None and max_length < 0):
             raise ValueError('Invalid length specification')
 
         self.min_length = min_length

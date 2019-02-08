@@ -41,9 +41,6 @@ class Resource:
     def __getitem__(self, item):
         return self._fields[item].value
 
-    def __contains__(self, item):
-        return item in self._fields
-
     def update(self, data):
         for key, value in data.items():
             self[key] = value
