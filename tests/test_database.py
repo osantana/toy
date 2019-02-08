@@ -10,12 +10,14 @@ def test_basic_database(database_url):
     assert db.connection is None
 
 
-def test_database_init_db(application):
+def test_database_init_db(create_test_db, database_url):
+    app = RecipesApp(database_url=database_url)
+
     db = Database()
-    db.init_app(application)
+    db.init_app(app)
 
     assert not db.connection.closed
-    assert application.extensions['db'] == db
+    assert app.extensions['db'] == db
 
 
 def test_database_get_db():
@@ -25,7 +27,7 @@ def test_database_get_db():
     assert 'db' not in application.extensions
 
 
-def test_database_get_db_application_init(application):
+def test_database_get_db_application_init(create_test_db, application):
     db = get_db(application=application)
     assert application.extensions['db'] == db
 

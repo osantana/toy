@@ -29,6 +29,9 @@ class Database:
         self.connection = self.engine.connect()
         self.session = self.Session()
 
+    def create_tables(self):
+        return self.Model.metadata.create_all(self.engine)
+
     @classmethod
     def get(cls):
         if cls._instance is None:
