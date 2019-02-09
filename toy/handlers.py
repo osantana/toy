@@ -187,9 +187,9 @@ class ResourceHandler(Handler):
 # noinspection PyUnusedLocal
 def not_found_handler(request, **kwargs):
     processor = Processor(request)
-    return processor.get_response({"errors": ["Not Found"]}, status.NotFound())
+    return processor.get_response({'errors': ['Not Found']}, status.NotFound())
 
 
 # noinspection PyUnusedLocal
 def internal_error_handler(request, **kwargs):
-    return Response("Internal Server Error", status.InternalServerError())
+    return Response('Internal Server Error', status.InternalServerError())
