@@ -64,7 +64,7 @@ class Recipe(db.Model):
     difficulty = Column(SmallInteger, nullable=False)
     vegetarian = Column(Boolean, nullable=False, default=False)
 
-    ratings = relationship('Rating', back_populates='recipe')
+    ratings = relationship('Rating', back_populates='recipe', cascade='all, delete-orphan')
 
     search = Column(TSVectorType('name'))
 

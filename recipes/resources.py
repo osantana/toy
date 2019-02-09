@@ -20,30 +20,44 @@ class RatingResource(BaseResource):
         fields.IntegerField(name='value', min_value=1, max_value=5, required=True),
     ]
 
-    def do_create(self):
+    def do_create(self, parent_resource=None):
         db = self._get_db(self.application_args)
 
-        recipe_id = self.request.path_arguments['id']
-        recipe = db.session.query(Recipe).get(UUID(recipe_id))
+        if parent_resource:
+            recipe_id = parent_resource['id']
+        else:
+            recipe_id = UUID(self.request.path_arguments.get('id'))
 
-        # except KeyError, NotFound:  # TODO: raises 404 on unknown URL
+        if not recipe_id:
+            raise ResourceNotFound('Parent recipe not found')
 
-        recipe_resource = RecipeResource(
-            id=recipe.id,
-            name=recipe.name,
-            prep_time=recipe.prep_time.total_seconds() / 60,
-            difficulty=recipe.difficulty,
-            vegetarian=recipe.vegetarian,
-            ratings=recipe.ratings,
-        )
+        recipe = db.session.query(Recipe).get(recipe_id)
+        if not recipe:
+            raise ResourceNotFound('Parent recipe not found')
 
-        rating = Rating(recipe_id=recipe.id, value=self['value'])
-        db.session.add(rating)
+        rating = Rating(value=self['value'])
+        recipe.ratings.append(rating)
         db.session.commit()
+        db.session.flush()
 
         self['id'] = rating.id
-        recipe_resource['ratings'].append(self)
-        return recipe_resource
+
+        if not parent_resource:
+            parent_resource = RecipeResource(
+                id=recipe.id,
+                name=recipe.name,
+                prep_time=recipe.prep_time.total_seconds() / 60,
+                difficulty=recipe.difficulty,
+                vegetarian=recipe.vegetarian,
+            )
+            for rating in recipe.ratings:
+                rating_resource = RatingResource(
+                    id=rating.id,
+                    value=rating.value,
+                )
+                parent_resource['ratings'].append(rating_resource)
+
+        return parent_resource
 
 
 class RecipeResource(BaseResource):
@@ -56,7 +70,7 @@ class RecipeResource(BaseResource):
         fields.ResourceListField(name='ratings', resource_type=RatingResource),
     ]
 
-    def do_create(self):
+    def do_create(self, parent_resource=None):
         db = self._get_db(self.application_args)
 
         recipe = Recipe(
@@ -70,6 +84,8 @@ class RecipeResource(BaseResource):
         db.session.commit()
 
         self['id'] = recipe.id
+        for rating in self['ratings']:
+            rating.create(parent_resource=self)
 
     @classmethod
     def do_get(cls, request=None, application_args=None):
@@ -90,8 +106,16 @@ class RecipeResource(BaseResource):
             prep_time=recipe.prep_time.total_seconds() / 60,
             difficulty=recipe.difficulty,
             vegetarian=recipe.vegetarian,
-            ratings=recipe.ratings,  # TODO: limit the size of this list...
         )
+
+        for rating in recipe.ratings:
+            resource['ratings'].append(
+                RatingResource(
+                    id=rating.id,
+                    value=rating.value,
+                )
+            )
+
         return resource
 
     def do_remove(self):
