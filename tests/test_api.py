@@ -53,6 +53,34 @@ def test_fail_create_recipe_missing_required_field(client, database):
     assert errors[0]['message'] == 'Required field'
 
 
+def test_get_recipe(client, saved_recipe, database):
+    response = client.get(
+        f'/recipes/{saved_recipe.id}',
+        headers={'Accept': 'application/json'},
+    )
+    assert response.status == '200 OK'
+
+    json = response.json
+    assert json['id'] == str(saved_recipe.id)
+    assert json['name'] == 'Simple Scrambled Eggs'
+    assert json['prep_time'] == 5
+    assert json['difficulty'] == 1
+    assert json['vegetarian'] is True
+    assert len(json['ratings']) == 0
+
+
+def test_fail_get_unknown_recipe(client, saved_recipe, database):
+    response = client.get(
+        f'/recipes/deadbeef-c1a1-424d-b45f-52d5641c623c',  # unknown
+        headers={'Accept': 'application/json'},
+        status=404,
+    )
+    assert response.status == '404 Not Found'
+
+    json = response.json
+    assert json['errors'][0] == 'Not Found'
+
+
 def test_create_rating(client, saved_recipe, database):
     rating_data = {'value': 5}
     response = client.post_json(f'/recipes/{saved_recipe.id}/rating', rating_data)

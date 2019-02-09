@@ -10,7 +10,7 @@ from typing import Type, Union
 class Serializer:
     content_type = None
 
-    def load(self, stream):
+    def load(self, stream, charset):
         raise NotImplementedError('Abstract class')  # pragma: nocover
 
     def dump(self, obj):
@@ -47,8 +47,19 @@ serializers = SerializersManager.get()
 class JSONSerializer(Serializer):
     content_type = 'application/json'
 
-    def load(self, stream: Union[str, bytes]) -> dict:
-        return json.loads(stream)
+    def load(self, stream: Union[str, bytes], charset='iso-8859-1') -> dict:
+        return json.loads(stream, encoding=charset)
 
     def dump(self, obj: dict) -> str:
         return json.dumps(obj)
+
+
+@serializers.register
+class PassThroughSerializer(Serializer):
+    content_type = 'application/octet-stream'
+
+    def load(self, stream: Union[str, bytes], charset='iso-8859-1') -> str:
+        return stream.decode(charset)
+
+    def dump(self, obj) -> str:
+        return str(obj)

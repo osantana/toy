@@ -118,7 +118,7 @@ class Processor:
 
     def get_data(self) -> dict:
         serializer = self.serializers[self.request.content_type]
-        return serializer.load(self.request.data)
+        return serializer.load(self.request.data, self.request.charset)
 
     def get_response(self, data: dict, status: Optional[HTTPStatus] = None, headers=None, **kwargs) -> Response:
         if status is None:

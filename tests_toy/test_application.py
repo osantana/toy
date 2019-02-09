@@ -75,7 +75,7 @@ def test_request_to_not_found_route(application, handler):
     response = app.get('/not-found', status=404)
 
     assert response.status == '404 Not Found'
-    assert response.body == 'URL /not-found not found.'.encode('utf-8')
+    assert response.body == "{'errors': ['Not Found']}".encode('utf-8')
 
 
 def test_request_to_http_error_route(application):

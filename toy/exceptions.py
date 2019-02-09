@@ -21,3 +21,7 @@ class ValidationException(ToyException):
     def __init__(self, message, errors, *args):
         super().__init__(message, *args)
         self.errors = errors
+
+
+class ResourceNotFound(ToyException):
+    pass

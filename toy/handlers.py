@@ -1,9 +1,9 @@
 import re
 
-from staty import BadRequest, Created, InternalServerError, MethodNotAllowedException, NotFound
+from staty import BadRequest, Created, InternalServerError, MethodNotAllowedException, NotFound, NotFoundException, Ok
 
 from . import fields
-from .exceptions import ValidationException
+from .exceptions import ResourceNotFound, ValidationException
 from .http import HTTP_METHODS, Request, Response
 from .resources import Processor, Resource
 
@@ -119,10 +119,26 @@ class ResourceHandler(Handler):
             headers=headers,
         )
 
+    def get(self, request):
+        try:
+            resource = self.resource_type.get(
+                request=request,
+                application_args=self.application_args,
+            )
+        except ResourceNotFound:
+            raise NotFoundException()
+
+        processor = Processor(request)
+        return processor.get_response(
+            data=resource.data,
+            status=Ok(),
+        )
+
 
 # noinspection PyUnusedLocal
 def not_found_handler(request, **kwargs):
-    return Response(f'URL {request.path} not found.', NotFound())
+    processor = Processor(request)
+    return processor.get_response({"errors": ["Not Found"]}, NotFound())
 
 
 # noinspection PyUnusedLocal

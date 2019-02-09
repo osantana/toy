@@ -3,12 +3,14 @@ from uuid import UUID
 
 from recipes.models import Rating, Recipe
 from toy import fields
+from toy.exceptions import ResourceNotFound
 from toy.resources import Resource
 
 
 class BaseResource(Resource):
-    def _get_db(self):
-        app = self.application_args['application']
+    @staticmethod
+    def _get_db(application_args):
+        app = application_args['application']
         return app.extensions['db']
 
 
@@ -19,7 +21,7 @@ class RatingResource(BaseResource):
     ]
 
     def do_create(self):
-        db = self._get_db()
+        db = self._get_db(self.application_args)
 
         recipe_id = self.request.path_arguments['id']
         recipe = db.session.query(Recipe).get(UUID(recipe_id))
@@ -55,7 +57,7 @@ class RecipeResource(BaseResource):
     ]
 
     def do_create(self):
-        db = self._get_db()
+        db = self._get_db(self.application_args)
 
         recipe = Recipe(
             name=self['name'],
@@ -68,6 +70,29 @@ class RecipeResource(BaseResource):
         db.session.commit()
 
         self['id'] = recipe.id
+
+    @classmethod
+    def do_get(cls, request=None, application_args=None):
+        db = cls._get_db(application_args)
+
+        try:
+            recipe_id = request.path_arguments['id']
+        except KeyError:
+            raise ResourceNotFound('Unknown path id')
+
+        recipe = db.session.query(Recipe).get(recipe_id)
+        if not recipe:
+            raise ResourceNotFound(f'Recipe {recipe_id} not found')
+
+        resource = cls(
+            id=recipe.id,
+            name=recipe.name,
+            prep_time=recipe.prep_time.total_seconds() / 60,
+            difficulty=recipe.difficulty,
+            vegetarian=recipe.vegetarian,
+            ratings=recipe.ratings,  # TODO: limit the size of this list...
+        )
+        return resource
 
 
 class RecipesResource(BaseResource):

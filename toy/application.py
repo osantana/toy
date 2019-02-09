@@ -1,4 +1,4 @@
-from staty import HTTPError, MethodNotAllowed, MethodNotAllowedException
+from staty import HTTPError, MethodNotAllowed, MethodNotAllowedException, NotFoundException
 
 from .http import Request, Response, WSGIResponse
 from .routing import Routes
@@ -54,6 +54,9 @@ class Application:
                 response = route.handler(request)
             except MethodNotAllowedException:
                 continue
+
+            except NotFoundException:
+                return self.routes.not_found(request)
 
             except HTTPError as ex:
                 response = Response(str(ex), status=ex.status)
