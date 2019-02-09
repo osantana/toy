@@ -30,7 +30,9 @@ def create_test_db(database_url):
 def database(create_test_db, application):
     db = application.extensions['db']
     db.create_tables()
-    return db
+    yield db
+    db.session.close()
+    db.connection.close()
 
 
 @pytest.fixture
