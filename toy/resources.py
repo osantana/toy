@@ -94,6 +94,10 @@ class Resource:
         resource = self.do_change(**kwargs)
         return resource or self
 
+    def remove(self):
+        resource = self.do_remove()
+        return resource
+
     @classmethod
     def do_get(cls, request=None, application_args=None) -> Optional['Resource']:  # maps to get
         pass
@@ -105,6 +109,9 @@ class Resource:
         pass
 
     def do_change(self, **kwargs) -> Optional['Resource']:  # maps to patch
+        pass
+
+    def do_remove(self) -> Optional['Resource']:
         pass
 
 

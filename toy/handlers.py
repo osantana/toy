@@ -1,6 +1,7 @@
 import re
 
-from staty import BadRequest, Created, InternalServerError, MethodNotAllowedException, NotFound, NotFoundException, Ok
+from staty import codes as status
+from staty import exceptions as error_status
 
 from . import fields
 from .exceptions import ResourceNotFound, ValidationException
@@ -26,12 +27,12 @@ class Handler:
         method = request.method
 
         if method.lower() not in self._methods:
-            raise MethodNotAllowedException(f'Method {method} not allowed')
+            raise error_status.MethodNotAllowedException(f'Method {method} not allowed')
 
         try:
             handler = getattr(self, method.lower())
         except AttributeError:
-            raise MethodNotAllowedException(f'Method {method} not allowed')
+            raise error_status.MethodNotAllowedException(f'Method {method} not allowed')
         return handler
 
     def dispatch(self, request: Request) -> Response:
@@ -90,7 +91,7 @@ class ResourceHandler(Handler):
         resource.update(exc.errors)
         return processor.get_response(
             data=resource.data,
-            status=BadRequest(),
+            status=status.BadRequest(),
         )
 
     def post(self, request):
@@ -115,7 +116,7 @@ class ResourceHandler(Handler):
 
         return processor.get_response(
             data=response_resource.data,
-            status=Created(),
+            status=status.Created(),
             headers=headers,
         )
 
@@ -126,21 +127,40 @@ class ResourceHandler(Handler):
                 application_args=self.application_args,
             )
         except ResourceNotFound:
-            raise NotFoundException()
+            raise error_status.NotFoundException()
 
         processor = Processor(request)
         return processor.get_response(
             data=resource.data,
-            status=Ok(),
+            status=status.Ok(),
+        )
+
+    def delete(self, request):
+        try:
+            resource = self.resource_type(
+                request=request,
+                application_args=self.application_args,
+            )
+            response_resource = resource.remove()
+        except ResourceNotFound:
+            raise error_status.NotFoundException()
+
+        if not response_resource:
+            return Response('', status=status.NoContent(), content_type=None)
+
+        processor = Processor(request)
+        return processor.get_response(
+            data=response_resource.data,
+            status=status.Ok()
         )
 
 
 # noinspection PyUnusedLocal
 def not_found_handler(request, **kwargs):
     processor = Processor(request)
-    return processor.get_response({"errors": ["Not Found"]}, NotFound())
+    return processor.get_response({"errors": ["Not Found"]}, status.NotFound())
 
 
 # noinspection PyUnusedLocal
 def internal_error_handler(request, **kwargs):
-    return Response("Internal Server Error", InternalServerError())
+    return Response("Internal Server Error", status.InternalServerError())

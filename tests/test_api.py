@@ -69,8 +69,31 @@ def test_get_recipe(client, saved_recipe, database):
     assert len(json['ratings']) == 0
 
 
-def test_fail_get_unknown_recipe(client, saved_recipe, database):
+def test_fail_get_unknown_recipe(client, database):
     response = client.get(
+        f'/recipes/deadbeef-c1a1-424d-b45f-52d5641c623c',  # unknown
+        headers={'Accept': 'application/json'},
+        status=404,
+    )
+    assert response.status == '404 Not Found'
+
+    json = response.json
+    assert json['errors'][0] == 'Not Found'
+
+
+def test_delete_recipe(client, saved_recipe, database):
+    response = client.delete(
+        f'/recipes/{saved_recipe.id}',
+        headers={'Accept': 'application/json'},
+    )
+    assert response.status == '204 No Content'
+
+    recipes = database.session.query(Recipe).all()
+    assert len(recipes) == 0
+
+
+def test_fail_delete_unknown_recipe(client, database):
+    response = client.delete(
         f'/recipes/deadbeef-c1a1-424d-b45f-52d5641c623c',  # unknown
         headers={'Accept': 'application/json'},
         status=404,

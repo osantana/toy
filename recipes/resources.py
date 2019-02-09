@@ -94,6 +94,21 @@ class RecipeResource(BaseResource):
         )
         return resource
 
+    def do_remove(self):
+        db = self._get_db(self.application_args)
+
+        try:
+            recipe_id = self.request.path_arguments['id']
+        except KeyError:
+            raise ResourceNotFound('Unknown path id')
+
+        recipe = db.session.query(Recipe).get(recipe_id)
+        if not recipe:
+            raise ResourceNotFound(f'Recipe {recipe_id} not found')
+
+        db.session.delete(recipe)
+        db.session.flush()
+
 
 class RecipesResource(BaseResource):
     pass  # TODO

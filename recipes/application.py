@@ -22,7 +22,7 @@ class RecipesApp(Application):
  X  | Create | `POST`      | `/recipes`             | ✓         |
  X  | Get    | `GET`       | `/recipes/{id}`        | ✘         |
     | Update | `PUT/PATCH` | `/recipes/{id}`        | ✓         |
-    | Delete | `DELETE`    | `/recipes/{id}`        | ✓         |
+ X  | Delete | `DELETE`    | `/recipes/{id}`        | ✓         |
  X  | Rate   | `POST`      | `/recipes/{id}/rating` | ✘         |
 """
 
