@@ -3,7 +3,7 @@ from io import BytesIO
 from urllib.parse import parse_qs
 
 import accept
-from staty import HTTPStatus, Ok
+from staty import HTTPStatus, NoContent, Ok
 
 HTTP_METHODS = {
     'PATCH',
@@ -92,7 +92,17 @@ class Response:
             status = Ok()
 
         self.status = status
+
+        if status == NoContent():
+            data = None
+            content_type = None
+            charset = None
+        else:
+            content_type, charset = parse_content_type(content_type)
+
         self.data = data
+        self.content_type = content_type
+        self.charset = charset
 
         if headers is None:
             headers = {}
@@ -104,14 +114,14 @@ class Response:
 
             self.headers[to_title_case(key)] = value
 
-        content_type, charset = parse_content_type(content_type)
-        self.content_type = content_type
-        self.charset = charset
-
-        self.headers['Content-Type'] = f'{content_type}; charset={charset}'
+        if content_type:
+            self.headers['Content-Type'] = f'{content_type}; charset={charset}'
 
     @property
     def content_stream(self):
+        if self.data is None or self.charset is None:
+            return BytesIO()
+
         return BytesIO(self.data.encode(self.charset))
 
     def __repr__(self):

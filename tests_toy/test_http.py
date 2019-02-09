@@ -2,7 +2,7 @@ from io import BytesIO
 
 import pytest
 from accept import MediaType
-from staty import Ok
+from staty import NoContent, Ok
 
 from toy.http import Request, Response, to_title_case
 
@@ -68,6 +68,15 @@ def test_response_with_different_content_type():
     assert response.content_type == 'text/plain'
     assert response.charset == 'utf-8'
     assert response.content_stream.read() == BytesIO('Olá mundo!'.encode('utf-8')).read()
+
+
+def test_response_with_no_content_status():
+    response = Response('', status=NoContent(), content_type='text/plain; charset=utf-8')
+    assert response.data is None
+    assert response.content_type is None
+    assert response.charset is None
+    assert 'Content-Type' not in response.headers
+    assert response.content_stream.read() == b''
 
 
 def test_response_with_extra_http_headers():
