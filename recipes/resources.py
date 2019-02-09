@@ -15,7 +15,7 @@ class BaseResource(Resource):
 class RatingResource(BaseResource):
     fields = [
         fields.UUIDField(name='id', required=True, lazy=True),
-        fields.IntegerField(name='value', min_value=1, max_value=5),
+        fields.IntegerField(name='value', min_value=1, max_value=5, required=True),
     ]
 
     def do_create(self):
