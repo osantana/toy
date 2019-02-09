@@ -121,6 +121,8 @@ class UUIDField(Field):
     default_validators = [Type([UUID])]
 
     def _get_data(self):
+        if self.value is None:
+            return
         return str(self.value)
 
 

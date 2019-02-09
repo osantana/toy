@@ -16,6 +16,15 @@ def test_basic_uuid_field():
 
     assert field.name == 'uuid'
     assert field.value == uuid
+    assert field.data == str(uuid)
+
+
+def test_uuid_field_not_defined():
+    field = fields.UUIDField(name='uuid')
+
+    assert field.name == 'uuid'
+    assert field.value is None
+    assert field.data is None
 
 
 def test_error_invalid_uuid():
