@@ -128,7 +128,7 @@ def basic_resource_class():
             })
             return resource
 
-        def do_create(self):
+        def do_create(self, parent_resource=None):
             pass
 
     return MyResource

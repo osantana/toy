@@ -78,9 +78,9 @@ class Resource:
         resource.validate()
         return resource
 
-    def create(self) -> 'Resource':
+    def create(self, parent_resource=None) -> 'Resource':
         self.validate(include_lazy=False, raise_exception=True)
-        resource = self.do_create()
+        resource = self.do_create(parent_resource)
         self.validate(raise_exception=True)
         return resource or self
 
@@ -102,7 +102,7 @@ class Resource:
     def do_get(cls, request=None, application_args=None) -> Optional['Resource']:  # maps to get
         pass
 
-    def do_create(self) -> Optional['Resource']:  # maps to post
+    def do_create(self, parent_resource=None) -> Optional['Resource']:  # maps to post
         pass
 
     def do_replace(self) -> Optional['Resource']:  # maps to put

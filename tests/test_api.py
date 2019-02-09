@@ -10,6 +10,9 @@ def test_create_recipe(client, database):
         'prep_time': 5,  # minutes
         'difficulty': 1,
         'vegetarian': True,
+        'ratings': [
+            {'value': 5}
+        ]
     }
     response = client.post_json('/recipes', recipe_data)
     assert response.status == '201 Created'
@@ -23,7 +26,8 @@ def test_create_recipe(client, database):
     assert json['prep_time'] == 5
     assert json['difficulty'] == 1
     assert json['vegetarian'] is True
-    assert json['ratings'] == []
+    assert json['ratings'][0]['value'] == 5
+    assert json['ratings'][0]['id'] is not None
 
 
 def test_create_recipe_in_database(client, recipe_data, database):
@@ -35,7 +39,8 @@ def test_create_recipe_in_database(client, recipe_data, database):
     assert recipes[0].prep_time == timedelta(minutes=5)
     assert recipes[0].difficulty == 1
     assert recipes[0].vegetarian is True
-    assert recipes[0].ratings == []
+    assert len(recipes[0].ratings) == 1
+    assert recipes[0].ratings[0].value == 5
 
 
 def test_fail_create_recipe_missing_required_field(client, database):
@@ -66,7 +71,7 @@ def test_get_recipe(client, saved_recipe, database):
     assert json['prep_time'] == 5
     assert json['difficulty'] == 1
     assert json['vegetarian'] is True
-    assert len(json['ratings']) == 0
+    assert len(json['ratings']) == 1
 
 
 def test_fail_get_unknown_recipe(client, database):
@@ -105,7 +110,7 @@ def test_fail_delete_unknown_recipe(client, database):
 
 
 def test_create_rating(client, saved_recipe, database):
-    rating_data = {'value': 5}
+    rating_data = {'value': 3}
     response = client.post_json(f'/recipes/{saved_recipe.id}/rating', rating_data)
     assert response.status == '201 Created'
 
@@ -118,17 +123,20 @@ def test_create_rating(client, saved_recipe, database):
     assert json['prep_time'] == 5
     assert json['difficulty'] == 1
     assert json['vegetarian'] is True
-    assert len(json['ratings']) == 1
+    assert len(json['ratings']) == 2
+    assert json['ratings'][0]['value'] == 5
+    assert json['ratings'][1]['value'] == 3
 
 
 def test_create_rating_in_database(client, saved_recipe, database):
-    rating_data = {'value': 5}
+    rating_data = {'value': 3}
     client.post_json(f'/recipes/{saved_recipe.id}/rating', rating_data)
 
     ratings = database.session.query(Rating).filter(Rating.recipe == saved_recipe).all()
 
-    assert len(ratings) == 1
+    assert len(ratings) == 2
     assert ratings[0].value == 5
+    assert ratings[1].value == 3
 
 
 def test_fail_create_rating_missing_required_field(client, saved_recipe, database):
