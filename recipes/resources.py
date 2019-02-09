@@ -133,6 +133,32 @@ class RecipeResource(BaseResource):
         db.session.delete(recipe)
         db.session.flush()
 
+    def do_replace(self):
+        db = self._get_db(self.application_args)
+
+        try:
+            recipe_id = self.request.path_arguments['id']
+        except KeyError:
+            raise ResourceNotFound('Unknown path id')
+
+        recipe = db.session.query(Recipe).get(recipe_id)
+        if not recipe:
+            raise ResourceNotFound(f'Recipe {recipe_id} not found')
+
+        self['id'] = recipe.id
+
+        recipe.name = self['name']
+        recipe.prep_time = timedelta(minutes=self['prep_time'])
+        recipe.difficulty = self['difficulty']
+        recipe.vegetarian = self['vegetarian']
+        db.session.query(Rating).filter(recipe == recipe).delete()
+
+        for rating in self['ratings']:
+            rating.create(parent_resource=self)
+
+        db.session.commit()
+        db.session.flush()
+
 
 class RecipesResource(BaseResource):
     pass  # TODO

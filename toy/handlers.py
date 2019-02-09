@@ -154,6 +154,35 @@ class ResourceHandler(Handler):
             status=status.Ok()
         )
 
+    def put(self, request):
+        resource = self.resource_type(
+            request=request,
+            application_args=self.application_args,
+        )
+
+        processor = Processor(request)
+        data = processor.get_data()
+
+        data_fields = set(data.keys())
+        resource_fields = resource.keys(include_lazy=False)
+        if resource_fields != data_fields:
+            return processor.get_response(
+                data={'errors': [f'Invalid resource fields {resource_fields} != {data_fields}']},
+                status=status.BadRequest(),
+            )
+
+        resource.update(data)
+
+        try:
+            response_resource = resource.replace()
+        except ResourceNotFound:
+            raise error_status.NotFoundException()
+
+        return processor.get_response(
+            data=response_resource.data,
+            status=status.Ok()
+        )
+
 
 # noinspection PyUnusedLocal
 def not_found_handler(request, **kwargs):

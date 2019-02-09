@@ -41,6 +41,9 @@ class Resource:
     def __getitem__(self, item):
         return self._fields[item].value
 
+    def keys(self, include_lazy=True):
+        return set(f.name for f in self._fields.values() if include_lazy or not f.lazy)
+
     def update(self, data):
         for key, value in data.items():
             self[key] = value
