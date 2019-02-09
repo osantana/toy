@@ -6,13 +6,6 @@ from .resources import Resource
 from .validators import Length, Range, Required, Type, TypeList, Validator
 
 
-# TODO:
-#  - support for datetime field
-#  - support for date field
-#  - support for time field
-#  - support for timedelta field
-
-
 class Field:
     default_validators = []
 
@@ -174,9 +167,6 @@ class ResourceField(Field):
         return self.value.data
 
 
-# TODO: Improvement Points
-#    - Implement a ResourceList object to move out the list management from Field(?)
-#
 class ResourceListField(Field):
     def __init__(self, name, resource_type, *args, **kwargs):
         super().__init__(name, resource_type=resource_type, *args, **kwargs)

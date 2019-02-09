@@ -92,6 +92,7 @@ class Resource:
         resource = self.do_replace()
         return resource or self
 
+    # TODO: kwargs could be used to implement JSON-Patch in the future
     def change(self, **kwargs) -> 'Resource':
         self.validate()
         resource = self.do_change(**kwargs)

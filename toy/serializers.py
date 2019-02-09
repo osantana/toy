@@ -2,11 +2,6 @@ import json
 from typing import Type, Union
 
 
-# TODO:
-#   - xml
-#   - html/form
-
-
 class Serializer:
     content_type = None
 
