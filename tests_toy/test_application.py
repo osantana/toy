@@ -5,6 +5,7 @@ from staty import BadRequestException
 from webtest import TestApp
 
 from toy.application import Application
+from toy.exceptions import UnauthorizedException
 from toy.http import Request
 
 
@@ -91,6 +92,21 @@ def test_request_to_http_error_route(application):
 
     assert response.status == '400 Bad Request'
     assert response.body == 'Missing required field "foo".'.encode('utf-8')
+
+
+def test_request_to_unauthorized_error(application):
+    # noinspection PyUnusedLocal
+    def handler(request, **kwargs):
+        raise UnauthorizedException('Basic', 'Test realm')
+
+    application.add_route(r'^/unauthorized', handler)
+
+    app = TestApp(application)
+    response = app.get('/unauthorized', headers={'Accept': 'application/json'}, status=401)
+
+    assert response.status == '401 Unauthorized'
+    assert response.headers['WWW-Authenticate'] == 'Basic realm="Test realm"'
+    assert response.body == b'{"errors": ["Not authorized"]}'
 
 
 def test_request_to_internal_error_route(application):

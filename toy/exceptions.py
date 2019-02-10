@@ -25,3 +25,20 @@ class ValidationException(ToyException):
 
 class ResourceNotFoundException(ToyException):
     pass
+
+
+class UnauthorizedException(ToyException):
+    def __init__(self, auth_type, realm='', charset=False):
+        self.auth_type = auth_type.title()
+        self.realm = realm
+        self.charset = 'UTF-8' if charset else charset
+
+    @property
+    def header(self):
+        head = f'{self.auth_type}'
+        if self.realm:
+            realm = self.realm.replace('"', r'\"')
+            head = head + f' realm="{realm}"'
+        if self.charset:
+            head = head + f', charset="{self.charset}"'
+        return head

@@ -4,6 +4,7 @@ from unittest.mock import Mock
 import pytest
 from staty import MethodNotAllowedException
 
+from toy.exceptions import UnauthorizedException
 from toy.handlers import Handler, ResourceHandler
 from toy.http import Request
 
@@ -29,10 +30,12 @@ def test_basic_allowed_method_call(envbuilder):
     request = Request(envbuilder('GET', '/test'))
     handler = Handler(methods=['get'])
 
+    handler.authorize = Mock()
     handler.get = Mock()
 
     handler(request)
 
+    handler.authorize.assert_called_once_with(request)
     handler.get.assert_called_once_with(request)
 
 
@@ -93,3 +96,40 @@ def test_resource_handler_route_resolver(basic_resource_class):
     resource = basic_resource_class.get()
     handler = MyResourceHandler()
     assert handler.get_route(resource) == '/id/my-name'
+
+
+def test_authorized_request(envbuilder):
+    request = Request(envbuilder('GET', '/test'))
+    handler = Handler(methods=['get'])
+
+    handler.authorize = Mock()
+    handler.get = Mock()
+
+    handler(request)
+
+    handler.authorize.assert_called_once_with(request)
+    handler.get.assert_called_once_with(request)
+
+
+def test_fail_not_authorized_request(envbuilder):
+    request = Request(envbuilder('GET', '/test'))
+    handler = Handler(methods=['get'])
+    handler.authorize = Mock(side_effect=UnauthorizedException('basic'))
+    handler.get = Mock()
+
+    with pytest.raises(UnauthorizedException):
+        handler(request)
+
+
+def test_authenticate_header():
+    error = UnauthorizedException('basic')
+    assert error.header == 'Basic'
+
+    error = UnauthorizedException('basic', 'Access to the staging site')
+    assert error.header == 'Basic realm="Access to the staging site"'
+
+    error = UnauthorizedException('basic', 'Escape "double quote"')
+    assert error.header == r'Basic realm="Escape \"double quote\""'
+
+    error = UnauthorizedException('basic', 'Access to the staging site', charset=True)
+    assert error.header == 'Basic realm="Access to the staging site", charset="UTF-8"'

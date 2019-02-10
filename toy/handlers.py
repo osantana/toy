@@ -34,8 +34,12 @@ class Handler:
             raise error_status.MethodNotAllowedException(f'Method {method} not allowed')
         return handler
 
+    def authorize(self, request):
+        pass
+
     def dispatch(self, request: Request) -> Response:
         handler = self._find_handler(request)
+        self.authorize(request)
         return handler(request)
 
     def __call__(self, request: Request) -> Response:
@@ -215,3 +219,14 @@ def not_found_handler(request, **kwargs):
 # noinspection PyUnusedLocal
 def internal_error_handler(request, **kwargs):
     return Response('Internal Server Error', status.InternalServerError())
+
+
+# noinspection PyUnusedLocal
+def unauthorized_handler(request, error, **kwargs):
+    headers = {
+        'WWW-Authenticate': error.header,
+    }
+    processor = Processor(request)
+    return processor.get_response({'errors': ['Not authorized']},
+                                  status=status.Unauthorized(),
+                                  headers=headers)
