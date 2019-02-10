@@ -16,3 +16,5 @@
   - xml
   - html/form
 - Handle queryset with fields in Handler
+- Refactor request/app to use a Context object that wraps both objects
+  and things like 'user'

@@ -104,19 +104,19 @@ class Resource:
 
     @classmethod
     def do_get(cls, request=None, application_args=None) -> Optional['Resource']:  # maps to get
-        pass
+        pass  # pragma: nocover
 
     def do_create(self, parent_resource=None) -> Optional['Resource']:  # maps to post
-        pass
+        pass  # pragma: nocover
 
     def do_replace(self) -> Optional['Resource']:  # maps to put
-        pass
+        pass  # pragma: nocover
 
     def do_change(self, **kwargs) -> Optional['Resource']:  # maps to patch
-        pass
+        pass  # pragma: nocover
 
     def do_remove(self) -> Optional['Resource']:
-        pass
+        pass  # pragma: nocover
 
 
 class Processor:

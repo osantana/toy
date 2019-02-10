@@ -17,16 +17,6 @@ class RecipesApp(Application):
         self.add_route(r'^/recipes/(?P<id>[0-9a-f-]+)/rating$', handlers.Rating(application=self))
 
 
-"""
- X  | List   | `GET`       | `/recipes`             | ✘         |
- X  | Create | `POST`      | `/recipes`             | ✓         |
- X  | Get    | `GET`       | `/recipes/{id}`        | ✘         |
- X  | Update | `PUT/PATCH` | `/recipes/{id}`        | ✓         |
- X  | Delete | `DELETE`    | `/recipes/{id}`        | ✓         |
- X  | Rate   | `POST`      | `/recipes/{id}/rating` | ✘         |
-"""
-
-
 def get_app(**kwargs):
     app = RecipesApp(**kwargs)
     get_db(app)
