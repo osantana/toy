@@ -70,6 +70,62 @@ class RecipeResource(BaseResource):
         fields.ResourceListField(name='ratings', resource_type=RatingResource),
     ]
 
+    @classmethod
+    def _get_object_or_not_found(cls, db, request):
+        try:
+            recipe_id = request.path_arguments['id']
+        except KeyError:
+            raise ResourceNotFound('Unknown path id')
+        recipe = db.session.query(Recipe).get(recipe_id)
+        if not recipe:
+            raise ResourceNotFound(f'Recipe {recipe_id} not found')
+        return recipe
+
+    def _load_object_or_not_found(self, db):
+        recipe = self._get_object_or_not_found(db, self.request)
+        self['id'] = recipe.id
+        return recipe
+
+    def load_from_model(self, recipe):
+        self['id'] = recipe.id
+        self['name'] = recipe.name
+        self['prep_time'] = recipe.prep_time.total_seconds() // 60
+        self['difficulty'] = recipe.difficulty
+        self['vegetarian'] = recipe.vegetarian
+
+        for rating in recipe.ratings:
+            self['ratings'].append(
+                RatingResource(
+                    request=self.request,
+                    application_args=self.application_args,
+                    id=rating.id,
+                    value=rating.value,
+                )
+            )
+
+    def save_to_model(self, recipe, db=None):
+        recipe.name = self['name']
+        recipe.prep_time = timedelta(minutes=self['prep_time'])
+        recipe.difficulty = self['difficulty']
+        recipe.vegetarian = self['vegetarian']
+
+        if not db:
+            return
+
+        db.session.query(Rating).filter(recipe == recipe).delete()
+        for rating in self['ratings']:
+            rating.create(parent_resource=self)
+
+    @classmethod
+    def do_get(cls, request=None, application_args=None):
+        db = cls._get_db(application_args)
+
+        recipe = cls._get_object_or_not_found(db, request=request)
+
+        resource = cls()
+        resource.load_from_model(recipe)
+        return resource
+
     def do_create(self, parent_resource=None):
         db = self._get_db(self.application_args)
 
@@ -87,77 +143,32 @@ class RecipeResource(BaseResource):
         for rating in self['ratings']:
             rating.create(parent_resource=self)
 
-    @classmethod
-    def do_get(cls, request=None, application_args=None):
-        db = cls._get_db(application_args)
-
-        try:
-            recipe_id = request.path_arguments['id']
-        except KeyError:
-            raise ResourceNotFound('Unknown path id')
-
-        recipe = db.session.query(Recipe).get(recipe_id)
-        if not recipe:
-            raise ResourceNotFound(f'Recipe {recipe_id} not found')
-
-        resource = cls(
-            id=recipe.id,
-            name=recipe.name,
-            prep_time=recipe.prep_time.total_seconds() / 60,
-            difficulty=recipe.difficulty,
-            vegetarian=recipe.vegetarian,
-        )
-
-        for rating in recipe.ratings:
-            resource['ratings'].append(
-                RatingResource(
-                    id=rating.id,
-                    value=rating.value,
-                )
-            )
-
-        return resource
+        db.session.commit()
 
     def do_remove(self):
         db = self._get_db(self.application_args)
-
-        try:
-            recipe_id = self.request.path_arguments['id']
-        except KeyError:
-            raise ResourceNotFound('Unknown path id')
-
-        recipe = db.session.query(Recipe).get(recipe_id)
-        if not recipe:
-            raise ResourceNotFound(f'Recipe {recipe_id} not found')
-
+        recipe = self._load_object_or_not_found(db)
         db.session.delete(recipe)
-        db.session.flush()
+        db.session.commit()
 
     def do_replace(self):
         db = self._get_db(self.application_args)
+        recipe = self._load_object_or_not_found(db)
 
-        try:
-            recipe_id = self.request.path_arguments['id']
-        except KeyError:
-            raise ResourceNotFound('Unknown path id')
-
-        recipe = db.session.query(Recipe).get(recipe_id)
-        if not recipe:
-            raise ResourceNotFound(f'Recipe {recipe_id} not found')
-
-        self['id'] = recipe.id
-
-        recipe.name = self['name']
-        recipe.prep_time = timedelta(minutes=self['prep_time'])
-        recipe.difficulty = self['difficulty']
-        recipe.vegetarian = self['vegetarian']
-        db.session.query(Rating).filter(recipe == recipe).delete()
-
-        for rating in self['ratings']:
-            rating.create(parent_resource=self)
-
+        self.save_to_model(recipe, db)
         db.session.commit()
-        db.session.flush()
+
+    def do_change(self, **kwargs):
+        db = self._get_db(self.application_args)
+        recipe = self._load_object_or_not_found(db)
+
+        self.load_from_model(recipe)
+
+        kwargs.pop('id', None)  # FIXME: cannot update id. raise error?
+        self.update(kwargs)
+
+        self.save_to_model(recipe, db if 'ratings' in kwargs else None)
+        db.session.commit()
 
 
 class RecipesResource(BaseResource):

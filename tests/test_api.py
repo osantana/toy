@@ -182,6 +182,49 @@ def test_fail_replace_recipe_with_incomplete_payload(client, saved_rated_recipe,
     assert recipe.ratings[1].value == 1
 
 
+def test_change_recipe(client, saved_recipe, database):
+    new_recipe_data = {
+        'name': 'Super Scrambled Eggs',
+        'ratings': [
+            {'value': 2},
+            {'value': 1},
+        ]
+    }
+    response = client.patch_json(f'/recipes/{saved_recipe.id}', new_recipe_data)
+    assert response.status == '200 OK'
+
+    json = response.json
+
+    assert json['id'] == str(saved_recipe.id)
+    assert json['name'] == 'Super Scrambled Eggs'
+    assert json['prep_time'] == 5
+    assert json['difficulty'] == 1
+    assert json['vegetarian'] is True
+    assert len(json['ratings']) == 2
+    assert json['ratings'][0]['value'] == 2
+    assert json['ratings'][1]['value'] == 1
+
+
+def test_change_recipe_with_ratings_in_database(client, saved_recipe, database):
+    new_recipe_data = {
+        'name': 'Super Scrambled Eggs',
+        'ratings': [
+            {'value': 2},
+            {'value': 1},
+        ]
+    }
+    client.patch_json(f'/recipes/{saved_recipe.id}', new_recipe_data)
+
+    recipe = database.session.query(Recipe).first()
+    assert recipe.name == new_recipe_data['name']
+    assert recipe.prep_time == saved_recipe.prep_time
+    assert recipe.difficulty == saved_recipe.difficulty
+    assert recipe.vegetarian == saved_recipe.vegetarian
+    assert len(recipe.ratings) == 2
+    assert recipe.ratings[0].value == 2
+    assert recipe.ratings[1].value == 1
+
+
 def test_create_rating(client, saved_recipe, database):
     rating_data = {'value': 3}
     response = client.post_json(f'/recipes/{saved_recipe.id}/rating', rating_data)

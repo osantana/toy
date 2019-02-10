@@ -1,7 +1,6 @@
 import re
 
-from staty import codes as status
-from staty import exceptions as error_status
+from staty import codes as status, exceptions as error_status
 
 from . import fields
 from .exceptions import ResourceNotFound, ValidationException
@@ -175,6 +174,25 @@ class ResourceHandler(Handler):
 
         try:
             response_resource = resource.replace()
+        except ResourceNotFound:
+            raise error_status.NotFoundException()
+
+        return processor.get_response(
+            data=response_resource.data,
+            status=status.Ok()
+        )
+
+    def patch(self, request):
+        resource = self.resource_type(
+            request=request,
+            application_args=self.application_args,
+        )
+
+        processor = Processor(request)
+        data = processor.get_data()
+
+        try:
+            response_resource = resource.change(**data)
         except ResourceNotFound:
             raise error_status.NotFoundException()
 
