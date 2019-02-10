@@ -41,6 +41,7 @@ def test_http_basic_request(envbuilder, binary_content):
     assert request.accept_charset == [MediaType('iso-8859-1'), MediaType('utf-8', q=0.7)]
     assert request.content_stream.read() == b'Test'
     assert request.data == 'Test'
+    assert request.authenticated is False
 
 
 def test_http_request_lower_case_method(envbuilder, binary_content):
@@ -50,6 +51,17 @@ def test_http_request_lower_case_method(envbuilder, binary_content):
     )
     request = Request(env)
     assert request.method == 'GET'
+
+
+def test_http_request_authenticated(envbuilder, binary_content):
+    class AuthUser:
+        authenticated = True
+
+    env = envbuilder(method='get', path='/')
+    request = Request(env)
+
+    request.user = AuthUser()
+    assert request.authenticated is True
 
 
 def test_basic_response():

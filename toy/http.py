@@ -25,6 +25,12 @@ def to_title_case(text):
     return '-'.join(splitted)
 
 
+class _AnonymousUser:
+    @property
+    def authenticated(self):
+        return False
+
+
 def parse_content_type(content_type, default_charset='iso-8859-1'):
     content_type = content_type.lower()
     charset = default_charset
@@ -67,6 +73,7 @@ class Request:
         self.accept_charset = accept.parse(accept_charset)
 
         self.path_arguments = {}
+        self.user = _AnonymousUser()
 
         self.content_stream = environ['wsgi.input']
         self.content_stream.seek(0)
@@ -79,6 +86,10 @@ class Request:
             content = self.content_stream.read()
             self._cached_data = content.decode(self.charset)
         return self._cached_data
+
+    @property
+    def authenticated(self):
+        return self.user.authenticated
 
     def __repr__(self):
         return f'<Request {self.method} {self.path}>'
