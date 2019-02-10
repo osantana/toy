@@ -2,7 +2,7 @@ class ToyException(Exception):
     pass
 
 
-class InvalidRouteHandler(ToyException):
+class InvalidRouteHandlerException(ToyException):
     pass
 
 
@@ -23,5 +23,5 @@ class ValidationException(ToyException):
         self.errors = errors
 
 
-class ResourceNotFound(ToyException):
+class ResourceNotFoundException(ToyException):
     pass

@@ -3,7 +3,7 @@ import re
 from staty import codes as status, exceptions as error_status
 
 from . import fields
-from .exceptions import ResourceNotFound, ValidationException
+from .exceptions import ResourceNotFoundException, ValidationException
 from .http import HTTP_METHODS, Request, Response
 from .resources import Processor, Resource
 
@@ -127,7 +127,7 @@ class ResourceHandler(Handler):
                 request=request,
                 application_args=self.application_args,
             )
-        except ResourceNotFound:
+        except ResourceNotFoundException:
             raise error_status.NotFoundException()
 
         except ValidationException as exc:
@@ -145,7 +145,7 @@ class ResourceHandler(Handler):
                 application_args=self.application_args,
             )
             response_resource = resource.remove()
-        except ResourceNotFound:
+        except ResourceNotFoundException:
             raise error_status.NotFoundException()
 
         if not response_resource:
@@ -178,7 +178,7 @@ class ResourceHandler(Handler):
 
         try:
             response_resource = resource.replace()
-        except ResourceNotFound:
+        except ResourceNotFoundException:
             raise error_status.NotFoundException()
 
         return processor.get_response(
@@ -197,7 +197,7 @@ class ResourceHandler(Handler):
 
         try:
             response_resource = resource.change(**data)
-        except ResourceNotFound:
+        except ResourceNotFoundException:
             raise error_status.NotFoundException()
 
         return processor.get_response(

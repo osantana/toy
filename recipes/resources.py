@@ -6,7 +6,7 @@ from sqlalchemy_searchable import search
 
 from recipes.models import Rating, Recipe
 from toy import fields
-from toy.exceptions import ResourceNotFound, ValidationError, ValidationException
+from toy.exceptions import ResourceNotFoundException, ValidationError, ValidationException
 from toy.resources import Resource
 
 
@@ -32,11 +32,11 @@ class RatingResource(BaseResource):
             recipe_id = UUID(self.request.path_arguments.get('id'))
 
         if not recipe_id:
-            raise ResourceNotFound('Parent recipe not found')
+            raise ResourceNotFoundException('Parent recipe not found')
 
         recipe = db.session.query(Recipe).get(recipe_id)
         if not recipe:
-            raise ResourceNotFound('Parent recipe not found')
+            raise ResourceNotFoundException('Parent recipe not found')
 
         rating = Rating(value=self['value'])
         recipe.ratings.append(rating)
@@ -78,10 +78,10 @@ class RecipeResource(BaseResource):
         try:
             recipe_id = request.path_arguments['id']
         except KeyError:
-            raise ResourceNotFound('Unknown path id')
+            raise ResourceNotFoundException('Unknown path id')
         recipe = db.session.query(Recipe).get(recipe_id)
         if not recipe:
-            raise ResourceNotFound(f'Recipe {recipe_id} not found')
+            raise ResourceNotFoundException(f'Recipe {recipe_id} not found')
         return recipe
 
     def _load_object_or_not_found(self, db):

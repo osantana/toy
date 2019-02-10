@@ -1,7 +1,7 @@
 import re
 
-from .exceptions import InvalidRouteHandler
 from .handlers import internal_error_handler, not_found_handler
+from .exceptions import InvalidRouteHandlerException
 
 
 class Route:
@@ -11,7 +11,7 @@ class Route:
         self.path = path
 
         if not callable(handler):
-            raise InvalidRouteHandler('Handlers must be callable objects')
+            raise InvalidRouteHandlerException('Handlers must be callable objects')
         self.handler = handler
 
         self.pattern = re.compile(path)

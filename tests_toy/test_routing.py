@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from toy.exceptions import InvalidRouteHandler
+from toy.exceptions import InvalidRouteHandlerException
 from toy.routing import Route, Routes
 
 
@@ -26,7 +26,7 @@ def test_route_with_args(handler):
 
 
 def test_error_route_with_not_callable_handler():
-    with pytest.raises(InvalidRouteHandler):
+    with pytest.raises(InvalidRouteHandlerException):
         Route(r'^$', "not-callable")
 
 
