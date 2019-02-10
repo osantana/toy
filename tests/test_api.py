@@ -1,6 +1,8 @@
 from datetime import timedelta
 from uuid import UUID
 
+import pytest
+
 from recipes.models import Rating, Recipe
 
 
@@ -266,3 +268,54 @@ def test_fail_create_rating_missing_required_field(client, saved_recipe, databas
     assert errors[0]['message'] == 'Required field'
     assert errors[1]['field'] == 'value'
     assert errors[1]['message'] == 'Invalid value type for this field'
+
+
+def test_list_recipes(client, recipes, database):
+    response = client.get(f'/recipes', headers={'Accept': 'application/json'})
+    assert response.status == '200 OK'
+
+    json = response.json
+    assert json['offset'] == 0
+    assert json['limit'] == 20
+    assert json['total'] == 35
+    assert json['count'] == len(json['results'])
+
+    results = json['results']
+    assert results[0]['name'] == 'Simple Scrambled Eggs #0'
+
+
+@pytest.mark.parametrize('params,offset,limit,search,first_suffix,last_suffix', [
+    ('offset=30', 30, 20, None, '#30', '#34'),
+    ('offset=30&limit=3', 30, 3, None, '#30', '#32'),
+    ('limit=40', 0, 30, None, '#0', '#29'),
+    ('search=eggs', 0, 20, 'eggs', '#0', '#19'),
+    ('search=21', 0, 20, '21', '#21', '#21'),
+])
+def test_list_recipes_query_strings(client, recipes, database, params, offset, search, limit, first_suffix,
+                                    last_suffix):
+    response = client.get(f'/recipes', params, headers={'Accept': 'application/json'})
+
+    json = response.json
+    assert json['offset'] == offset
+    assert json['limit'] == limit
+    assert json['search'] == search
+    assert json['total'] == 35
+    assert json['count'] == len(json['results'])
+
+    results = json['results']
+    assert results and results[0]['name'].endswith(first_suffix)
+    assert results and results[-1]['name'].endswith(last_suffix)
+
+
+@pytest.mark.parametrize('params,error_count', [
+    ('offset=error', 1),
+    ('limit=error', 1),
+    ('offset=error&limit=error', 2),
+    ('offset=0&limit=error', 1),
+])
+def test_fail_list_recipes_invalid_query_strings(client, recipes, database, params, error_count):
+    response = client.get(f'/recipes', params, headers={'Accept': 'application/json'}, status=400)
+    assert response.status == '400 Bad Request'
+
+    json = response.json
+    assert len(json['errors']) == error_count

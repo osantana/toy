@@ -120,6 +120,8 @@ class ResourceHandler(Handler):
         )
 
     def get(self, request):
+        processor = Processor(request)
+
         try:
             resource = self.resource_type.get(
                 request=request,
@@ -128,7 +130,9 @@ class ResourceHandler(Handler):
         except ResourceNotFound:
             raise error_status.NotFoundException()
 
-        processor = Processor(request)
+        except ValidationException as exc:
+            return self._bad_request_error(exc, processor, request)
+
         return processor.get_response(
             data=resource.data,
             status=status.Ok(),

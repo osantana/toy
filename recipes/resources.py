@@ -1,9 +1,12 @@
 from datetime import timedelta
 from uuid import UUID
 
+from sqlalchemy import func
+from sqlalchemy_searchable import search
+
 from recipes.models import Rating, Recipe
 from toy import fields
-from toy.exceptions import ResourceNotFound
+from toy.exceptions import ResourceNotFound, ValidationError, ValidationException
 from toy.resources import Resource
 
 
@@ -122,7 +125,10 @@ class RecipeResource(BaseResource):
 
         recipe = cls._get_object_or_not_found(db, request=request)
 
-        resource = cls()
+        resource = cls(
+            request=request,
+            application_args=application_args,
+        )
         resource.load_from_model(recipe)
         return resource
 
@@ -172,4 +178,72 @@ class RecipeResource(BaseResource):
 
 
 class RecipesResource(BaseResource):
-    pass  # TODO
+    fields = [
+        fields.IntegerField(name='offset'),
+        fields.IntegerField(name='limit'),
+        fields.IntegerField(name='total'),
+        fields.IntegerField(name='count'),
+        fields.ResourceListField(name='results', resource_type=RecipeResource),
+        fields.CharField(name='search', max_length=255),
+    ]
+
+    default_limit = 20
+    max_limit = 30
+    default_offset = 0
+
+    @classmethod
+    def do_get(cls, request=None, application_args=None):
+        db = cls._get_db(application_args)
+
+        errors = {}
+
+        limit = request.query_string.get('limit')
+        try:
+            limit = [cls.default_limit] if limit is None else limit
+            limit = min(cls.max_limit, int(limit[-1]))
+        except ValueError:
+            errors['limit'] = [ValidationError('Invalid value', 'limit', limit)]
+
+        offset = request.query_string.get('offset')
+        try:
+            offset = [cls.default_offset] if offset is None else offset
+            offset = int(offset[-1])
+        except ValueError:
+            errors['offset'] = [ValidationError('Invalid value', 'offset', offset)]
+
+        if errors:
+            raise ValidationException('Invalid query', errors)
+
+        search_terms = request.query_string.get('search')
+        search_terms = [None] if search_terms is None else search_terms
+        search_terms = search_terms[-1]
+
+        resource = cls(
+            request=request,
+            application_args=application_args,
+            offset=offset,
+            limit=limit,
+            search=search_terms,
+        )
+
+        resource['total'] = db.session.query(func.count(Recipe.id)).scalar()
+
+        query = db.session.query(Recipe)
+        if resource['search']:
+            query = search(query, resource['search'], sort=True)
+
+        query = query.offset(resource['offset'])
+        query = query.limit(resource['limit'])
+
+        recipes = []
+        for recipe in query.all():
+            recipe_resource = RecipeResource(
+                request=request,
+                application_args=application_args,
+            )
+            recipe_resource.load_from_model(recipe)
+            recipes.append(recipe_resource)
+        resource['results'] = recipes
+        resource['count'] = len(recipes)
+
+        return resource

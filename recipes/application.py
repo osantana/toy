@@ -18,10 +18,10 @@ class RecipesApp(Application):
 
 
 """
-    | List   | `GET`       | `/recipes`             | ✘         |
+ X  | List   | `GET`       | `/recipes`             | ✘         |
  X  | Create | `POST`      | `/recipes`             | ✓         |
  X  | Get    | `GET`       | `/recipes/{id}`        | ✘         |
-    | Update | `PUT/PATCH` | `/recipes/{id}`        | ✓         |
+ X  | Update | `PUT/PATCH` | `/recipes/{id}`        | ✓         |
  X  | Delete | `DELETE`    | `/recipes/{id}`        | ✓         |
  X  | Rate   | `POST`      | `/recipes/{id}/rating` | ✘         |
 """

@@ -15,3 +15,4 @@
 - More serializers:
   - xml
   - html/form
+- Handle queryset with fields in Handler

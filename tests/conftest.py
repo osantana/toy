@@ -86,3 +86,20 @@ def saved_rated_recipe(saved_recipe, database):
     saved_recipe.ratings.append(Rating(value=1))
     database.session.commit()
     return saved_recipe
+
+
+@pytest.fixture
+def recipes(recipe_data, database):
+    objs = []
+    for i in range(35):
+        recipe = Recipe(
+            name=f'{recipe_data["name"]} #{i}',
+            prep_time=timedelta(minutes=recipe_data['prep_time']),
+            difficulty=recipe_data['difficulty'],
+            vegetarian=recipe_data['vegetarian'],
+        )
+        database.session.add(recipe)
+        objs.append(recipe)
+    database.session.commit()
+    database.session.flush()
+    return objs
