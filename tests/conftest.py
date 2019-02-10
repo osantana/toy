@@ -1,3 +1,4 @@
+from base64 import b64encode
 from datetime import timedelta
 
 import pytest
@@ -6,7 +7,7 @@ from sqlalchemy_utils import create_database, drop_database
 from webtest import TestApp
 
 from recipes.application import get_app
-from recipes.models import Rating, Recipe
+from recipes.models import Rating, Recipe, User
 
 
 @pytest.fixture
@@ -23,7 +24,14 @@ def create_test_db(database_url):
 
     create_database(database_url)
     yield
-    drop_database(database_url)
+
+    # FIXME: https://github.com/Overseas-Student-Living/sqlalchemy-diff/issues/10
+    while True:
+        try:
+            drop_database(database_url)
+        except ProgrammingError:
+            continue
+        break
 
 
 @pytest.fixture
@@ -103,3 +111,32 @@ def recipes(recipe_data, database):
     database.session.commit()
     database.session.flush()
     return objs
+
+
+@pytest.fixture
+def user(database):
+    user = User(
+        email='test@example.com',
+    )
+    user.set_password('sekret')
+    database.session.add(user)
+    database.session.commit()
+    return user
+
+
+@pytest.fixture
+def user_credentials(user):
+    credentials = b64encode(f'{user.email}:sekret'.encode('ascii')).decode('ascii')
+    headers = {
+        'Authorization': f'Basic {credentials}',
+    }
+    return headers
+
+
+@pytest.fixture
+def unknown_user(user):
+    credentials = b64encode(f'{user.email}:wrong-password'.encode('ascii')).decode('ascii')
+    headers = {
+        'Authorization': f'Basic {credentials}',
+    }
+    return headers

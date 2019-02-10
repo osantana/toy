@@ -6,7 +6,7 @@ import pytest
 from recipes.models import Rating, Recipe
 
 
-def test_create_recipe(client, database):
+def test_create_recipe(client, database, user_credentials):
     recipe_data = {
         'name': 'Simple Scrambled Eggs',
         'prep_time': 5,  # minutes
@@ -16,7 +16,7 @@ def test_create_recipe(client, database):
             {'value': 5}
         ]
     }
-    response = client.post_json('/recipes', recipe_data)
+    response = client.post_json('/recipes', recipe_data, headers=user_credentials)
     assert response.status == '201 Created'
 
     json = response.json
@@ -32,8 +32,8 @@ def test_create_recipe(client, database):
     assert json['ratings'][0]['id'] is not None
 
 
-def test_create_recipe_in_database(client, recipe_data, database):
-    client.post_json('/recipes', recipe_data)
+def test_create_recipe_in_database(client, recipe_data, database, user_credentials):
+    client.post_json('/recipes', recipe_data, headers=user_credentials)
 
     recipes = database.session.query(Recipe).all()
     assert len(recipes) == 1
@@ -45,19 +45,27 @@ def test_create_recipe_in_database(client, recipe_data, database):
     assert recipes[0].ratings[0].value == 5
 
 
-def test_fail_create_recipe_missing_required_field(client, database):
+def test_fail_create_recipe_missing_required_field(client, database, user_credentials):
     recipe_data = {
         # 'name': 'Simple Scrambled Eggs',  # missing field
         'prep_time': 5,  # minutes
         'difficulty': 1,
         'vegetarian': True,
     }
-    response = client.post_json('/recipes', recipe_data, status=400)
+    response = client.post_json('/recipes', recipe_data, headers=user_credentials, status=400)
     assert response.status == '400 Bad Request'
 
     errors = response.json['errors']
     assert errors[0]['field'] == 'name'
     assert errors[0]['message'] == 'Required field'
+
+
+def test_fail_create_recipe_wrong_credentials(client, recipe_data, database, unknown_user):
+    response = client.post_json('/recipes', recipe_data, headers=unknown_user, status=401)
+    assert response.status == '401 Unauthorized'
+
+    recipes = database.session.query(Recipe).all()
+    assert len(recipes) == 0
 
 
 def test_get_recipe(client, saved_recipe, database):
@@ -88,10 +96,10 @@ def test_fail_get_unknown_recipe(client, database):
     assert json['errors'][0] == 'Not Found'
 
 
-def test_delete_recipe(client, saved_recipe, database):
+def test_delete_recipe(client, saved_recipe, database, user_credentials):
     response = client.delete(
         f'/recipes/{saved_recipe.id}',
-        headers={'Accept': 'application/json'},
+        headers=user_credentials,
     )
     assert response.status == '204 No Content'
 
@@ -99,10 +107,10 @@ def test_delete_recipe(client, saved_recipe, database):
     assert len(recipes) == 0
 
 
-def test_fail_delete_unknown_recipe(client, database):
-    response = client.delete(
+def test_fail_delete_unknown_recipe(client, database, user_credentials):
+    response = client.delete_json(
         f'/recipes/deadbeef-c1a1-424d-b45f-52d5641c623c',  # unknown
-        headers={'Accept': 'application/json'},
+        headers=user_credentials,
         status=404,
     )
     assert response.status == '404 Not Found'
@@ -111,7 +119,15 @@ def test_fail_delete_unknown_recipe(client, database):
     assert json['errors'][0] == 'Not Found'
 
 
-def test_replace_recipe(client, saved_recipe, database):
+def test_fail_delete_recipe_wrong_credentials(client, saved_recipe, database, unknown_user):
+    response = client.delete_json(f'/recipes/{saved_recipe.id}', headers=unknown_user, status=401)
+    assert response.status == '401 Unauthorized'
+
+    recipes = database.session.query(Recipe).all()
+    assert len(recipes) == 1
+
+
+def test_replace_recipe(client, saved_recipe, database, user_credentials):
     new_recipe_data = {
         'name': 'Super Scrambled Eggs',
         'prep_time': 10,  # minutes
@@ -122,7 +138,7 @@ def test_replace_recipe(client, saved_recipe, database):
             {'value': 1},
         ]
     }
-    response = client.put_json(f'/recipes/{saved_recipe.id}', new_recipe_data)
+    response = client.put_json(f'/recipes/{saved_recipe.id}', new_recipe_data, headers=user_credentials)
     assert response.status == '200 OK'
 
     json = response.json
@@ -137,7 +153,7 @@ def test_replace_recipe(client, saved_recipe, database):
     assert json['ratings'][1]['value'] == 1
 
 
-def test_replace_recipe_with_ratings_in_database(client, saved_rated_recipe, database):
+def test_replace_recipe_with_ratings_in_database(client, saved_rated_recipe, database, user_credentials):
     new_recipe_data = {
         'name': 'Super Scrambled Eggs',
         'prep_time': 10,  # minutes
@@ -148,7 +164,7 @@ def test_replace_recipe_with_ratings_in_database(client, saved_rated_recipe, dat
             {'value': 4},
         ]
     }
-    client.put_json(f'/recipes/{saved_rated_recipe.id}', new_recipe_data)
+    client.put_json(f'/recipes/{saved_rated_recipe.id}', new_recipe_data, headers=user_credentials)
 
     recipe = database.session.query(Recipe).first()
     assert recipe.name == new_recipe_data['name']
@@ -160,14 +176,19 @@ def test_replace_recipe_with_ratings_in_database(client, saved_rated_recipe, dat
     assert recipe.ratings[1].value == 4
 
 
-def test_fail_replace_recipe_with_incomplete_payload(client, saved_rated_recipe, database):
+def test_fail_replace_recipe_with_incomplete_payload(client, saved_rated_recipe, database, user_credentials):
     new_recipe_data = {
         'name': 'Super Scrambled Eggs',
         'prep_time': 10,  # minutes
         'difficulty': 2,
         'vegetarian': True,
     }
-    response = client.put_json(f'/recipes/{saved_rated_recipe.id}', new_recipe_data, status=400)
+    response = client.put_json(
+        f'/recipes/{saved_rated_recipe.id}',
+        params=new_recipe_data,
+        headers=user_credentials,
+        status=400,
+    )
     assert response.status == '400 Bad Request'
 
     json = response.json
@@ -184,7 +205,18 @@ def test_fail_replace_recipe_with_incomplete_payload(client, saved_rated_recipe,
     assert recipe.ratings[1].value == 1
 
 
-def test_change_recipe(client, saved_recipe, database):
+def test_fail_replace_recipe_wrong_credentials(client, saved_recipe, database, unknown_user):
+    new_recipe_data = {
+        'name': 'Super Scrambled Eggs',
+        'prep_time': 10,  # minutes
+        'difficulty': 2,
+        'vegetarian': True,
+    }
+    response = client.put_json(f'/recipes/{saved_recipe.id}', new_recipe_data, headers=unknown_user, status=401)
+    assert response.status == '401 Unauthorized'
+
+
+def test_change_recipe(client, saved_recipe, database, user_credentials):
     new_recipe_data = {
         'name': 'Super Scrambled Eggs',
         'ratings': [
@@ -192,7 +224,7 @@ def test_change_recipe(client, saved_recipe, database):
             {'value': 1},
         ]
     }
-    response = client.patch_json(f'/recipes/{saved_recipe.id}', new_recipe_data)
+    response = client.patch_json(f'/recipes/{saved_recipe.id}', new_recipe_data, headers=user_credentials)
     assert response.status == '200 OK'
 
     json = response.json
@@ -207,7 +239,7 @@ def test_change_recipe(client, saved_recipe, database):
     assert json['ratings'][1]['value'] == 1
 
 
-def test_change_recipe_with_ratings_in_database(client, saved_recipe, database):
+def test_change_recipe_with_ratings_in_database(client, saved_recipe, database, user_credentials):
     new_recipe_data = {
         'name': 'Super Scrambled Eggs',
         'ratings': [
@@ -215,7 +247,7 @@ def test_change_recipe_with_ratings_in_database(client, saved_recipe, database):
             {'value': 1},
         ]
     }
-    client.patch_json(f'/recipes/{saved_recipe.id}', new_recipe_data)
+    client.patch_json(f'/recipes/{saved_recipe.id}', new_recipe_data, headers=user_credentials)
 
     recipe = database.session.query(Recipe).first()
     assert recipe.name == new_recipe_data['name']
@@ -225,6 +257,18 @@ def test_change_recipe_with_ratings_in_database(client, saved_recipe, database):
     assert len(recipe.ratings) == 2
     assert recipe.ratings[0].value == 2
     assert recipe.ratings[1].value == 1
+
+
+def test_fail_change_recipe_wrong_credentials(client, saved_recipe, database, unknown_user):
+    new_recipe_data = {
+        'name': 'Super Scrambled Eggs',
+        'ratings': [
+            {'value': 2},
+            {'value': 1},
+        ]
+    }
+    response = client.patch_json(f'/recipes/{saved_recipe.id}', new_recipe_data, headers=unknown_user, status=401)
+    assert response.status == '401 Unauthorized'
 
 
 def test_create_rating(client, saved_recipe, database):
