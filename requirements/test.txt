@@ -3,4 +3,3 @@ webtest
 pytest
 pytest-cov
 coverage
-sqlalchemy-utils
