@@ -4,7 +4,7 @@ services:
         build: .
         volumes:
           - .:/code
-        entrypoint: python3 ./recipes/server.py
+        entrypoint: python3 -m recipes runserver
         env_file: docker.env
         links:
             - postgres

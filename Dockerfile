@@ -10,7 +10,8 @@ ADD ./requirements/test.txt /code/
 
 RUN pip install -U --no-cache-dir pip setuptools
 RUN pip install --no-cache-dir -r test.txt
+RUN ln -sf docker.env .env
 
 ADD recipes /code/
 
-ENTRYPOINT python3 recipes/server.py
+ENTRYPOINT python -m recipes runserver
