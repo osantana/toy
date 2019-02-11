@@ -1,5 +1,8 @@
 import json
+from json import JSONDecodeError
 from typing import Type, Union
+
+from .exceptions import SerializationException
 
 
 class Serializer:
@@ -43,7 +46,10 @@ class JSONSerializer(Serializer):
     content_type = 'application/json'
 
     def load(self, stream: Union[str, bytes], charset='iso-8859-1') -> dict:
-        return json.loads(stream, encoding=charset)
+        try:
+            return json.loads(stream, encoding=charset)
+        except JSONDecodeError:
+            raise SerializationException()
 
     def dump(self, obj: dict) -> str:
         return json.dumps(obj)

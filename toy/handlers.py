@@ -3,7 +3,7 @@ import re
 from staty import codes as status, exceptions as error_status
 
 from . import fields
-from .exceptions import ResourceNotFoundException, ValidationException
+from .exceptions import ResourceNotFoundException, SerializationException, ValidationException
 from .http import HTTP_METHODS, Request, Response
 from .resources import Processor, Resource
 
@@ -104,7 +104,14 @@ class ResourceHandler(Handler):
         )
 
         processor = Processor(request)
-        data = processor.get_data()
+
+        try:
+            data = processor.get_data()
+        except SerializationException:
+            return processor.get_response(
+                {'errors': [f'Invalid payload format. {request.content_type!r} expected.']},
+                status=status.BadRequest(),
+            )
 
         resource.update(data)
 
@@ -168,7 +175,14 @@ class ResourceHandler(Handler):
         )
 
         processor = Processor(request)
-        data = processor.get_data()
+
+        try:
+            data = processor.get_data()
+        except SerializationException:
+            return processor.get_response(
+                {'errors': [f'Invalid payload format. {request.content_type!r} expected.']},
+                status=status.BadRequest(),
+            )
 
         data_fields = set(data.keys())
         resource_fields = resource.keys(include_lazy=False)
@@ -197,7 +211,14 @@ class ResourceHandler(Handler):
         )
 
         processor = Processor(request)
-        data = processor.get_data()
+
+        try:
+            data = processor.get_data()
+        except SerializationException:
+            return processor.get_response(
+                {'errors': [f'Invalid payload format. {request.content_type!r} expected.']},
+                status=status.BadRequest(),
+            )
 
         try:
             response_resource = resource.change(**data)
