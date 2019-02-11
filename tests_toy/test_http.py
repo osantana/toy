@@ -39,7 +39,6 @@ def test_http_basic_request(envbuilder, binary_content):
     assert request.charset == 'iso-8859-1'
     assert request.accept == [MediaType('application/json')]
     assert request.accept_charset == [MediaType('iso-8859-1'), MediaType('utf-8', q=0.7)]
-    assert request.content_stream.read() == b'Test'
     assert request.data == 'Test'
     assert request.authenticated is False
 

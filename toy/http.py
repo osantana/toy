@@ -75,15 +75,18 @@ class Request:
         self.path_arguments = {}
         self.user = _AnonymousUser()
 
+        try:
+            self.content_length = int(environ.get('CONTENT_LENGTH', 0))
+        except (TypeError, ValueError):
+            self.content_stream = 0
+
         self.content_stream = environ['wsgi.input']
-        self.content_stream.seek(0)
         self._cached_data = ""
 
     @property
     def data(self):
         if not self._cached_data:
-            self.content_stream.seek(0)
-            content = self.content_stream.read()
+            content = self.content_stream.read(self.content_length)
             self._cached_data = content.decode(self.charset)
         return self._cached_data
 
