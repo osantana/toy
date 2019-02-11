@@ -230,3 +230,9 @@ def unauthorized_handler(request, error, **kwargs):
     return processor.get_response({'errors': ['Not authorized']},
                                   status=status.Unauthorized(),
                                   headers=headers)
+
+
+# noinspection PyUnusedLocal
+def unsupported_media_type_handler(request, error, **kwargs):
+    return Response(f'Unsupported media type {error.media_type!r}',
+                    status.UnsupportedMediaType(), content_type='text/plain')

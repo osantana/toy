@@ -2,7 +2,7 @@ from typing import Optional
 
 from staty import HTTPStatus, Ok
 
-from toy.exceptions import ValidationError, ValidationException
+from .exceptions import UnsupportedMediaTypeException, ValidationError, ValidationException
 from .http import Request, Response
 from .serializers import serializers
 
@@ -136,7 +136,11 @@ class Processor:
             status = Ok()
 
         content_type = self.request.accept[0].media_type
-        serializer = self.serializers[content_type]
+        try:
+            serializer = self.serializers[content_type]
+        except KeyError:
+            raise UnsupportedMediaTypeException(content_type)
+
         data = serializer.dump(data)
 
         response = Response(

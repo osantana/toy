@@ -1,6 +1,6 @@
 from staty import HTTPError, MethodNotAllowed, MethodNotAllowedException, NotFoundException
 
-from toy.exceptions import UnauthorizedException
+from toy.exceptions import UnauthorizedException, UnsupportedMediaTypeException
 from .http import Request, Response, WSGIResponse
 from .routing import Routes
 
@@ -61,6 +61,9 @@ class Application:
 
             except UnauthorizedException as ex:
                 return self.routes.unauthorized(request, ex)
+
+            except UnsupportedMediaTypeException as ex:
+                return self.routes.unsupported_media_type(request, ex)
 
             except HTTPError as ex:
                 response = Response(str(ex), status=ex.status)

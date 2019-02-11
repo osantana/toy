@@ -42,3 +42,12 @@ class UnauthorizedException(ToyException):
         if self.charset:
             head = head + f', charset="{self.charset}"'
         return head
+
+
+class UnsupportedMediaTypeException(ToyException):
+    def __init__(self, media_type):
+        self.media_type = media_type
+
+
+class SerializationException(ToyException):
+    pass

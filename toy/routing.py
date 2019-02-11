@@ -1,7 +1,7 @@
 import re
 
 from .exceptions import InvalidRouteHandlerException
-from .handlers import internal_error_handler, not_found_handler, unauthorized_handler
+from . import handlers
 
 
 class Route:
@@ -37,9 +37,10 @@ class Routes:
     def __init__(
             self,
             routes=None,
-            not_found=not_found_handler,
-            internal_error=internal_error_handler,
-            unauthorized=unauthorized_handler,
+            not_found=handlers.not_found_handler,
+            internal_error=handlers.internal_error_handler,
+            unauthorized=handlers.unauthorized_handler,
+            unsupported_media_type=handlers.unsupported_media_type_handler,
     ):
         if routes is None:
             routes = []
@@ -48,6 +49,7 @@ class Routes:
         self.not_found = not_found
         self.internal_error = internal_error
         self.unauthorized = unauthorized
+        self.unsupported_media_type = unsupported_media_type
 
     def __len__(self):
         return len(self._routes)
