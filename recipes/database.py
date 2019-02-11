@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import configure_mappers, sessionmaker
 from sqlalchemy_searchable import make_searchable
 
 
@@ -30,6 +30,7 @@ class Database:
         self.session = self.Session()
 
     def create_tables(self):
+        configure_mappers()
         return self.Model.metadata.create_all(self.engine)
 
     @classmethod
