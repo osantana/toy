@@ -52,9 +52,11 @@ class AuthorizationResourceHandler(ResourceHandler):
         try:
             user = db.session.query(User).filter(User.email == credentials['email']).one()
         except (NoResultFound, MultipleResultsFound):
+            db.session.rollback()
             raise UnauthorizedException('Basic', 'Recipes API')
 
         if not user.check_password(credentials['password']):
+            db.session.rollback()
             raise UnauthorizedException('Basic', 'Recipes API')
 
         request.user = user

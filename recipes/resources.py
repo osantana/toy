@@ -36,12 +36,12 @@ class RatingResource(BaseResource):
 
         recipe = db.session.query(Recipe).get(recipe_id)
         if not recipe:
+            db.session.rollback()
             raise ResourceNotFoundException('Parent recipe not found')
 
         rating = Rating(value=self['value'])
         recipe.ratings.append(rating)
         db.session.commit()
-        db.session.flush()
 
         self['id'] = rating.id
 
@@ -81,6 +81,7 @@ class RecipeResource(BaseResource):
             raise ResourceNotFoundException('Unknown path id')
         recipe = db.session.query(Recipe).get(recipe_id)
         if not recipe:
+            db.session.rollback()
             raise ResourceNotFoundException(f'Recipe {recipe_id} not found')
         return recipe
 
@@ -193,7 +194,6 @@ class RecipesResource(BaseResource):
 
     @classmethod
     def do_get(cls, request=None, application_args=None):
-        db = cls._get_db(application_args)
 
         errors = {}
 
@@ -226,6 +226,7 @@ class RecipesResource(BaseResource):
             search=search_terms,
         )
 
+        db = cls._get_db(application_args)
         resource['total'] = db.session.query(func.count(Recipe.id)).scalar()
 
         query = db.session.query(Recipe)
