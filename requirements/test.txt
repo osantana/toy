@@ -1,5 +1,0 @@
--r production.txt
-webtest
-pytest
-pytest-cov
-coverage
