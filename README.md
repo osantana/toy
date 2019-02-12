@@ -6,6 +6,28 @@ A Simple, basic and not suitable for production usage Web Framework
 
  * Python 3.7+
 
+## Improvement Points / TODO
+
+- Documentation!
+- Create ResourceList class and use it at ResourceListField.
+- Refactor Processor / Error handling.
+- Support for JSON-Patch (RFC6902).
+- Fix intermitent failures related with sqlalchemy sessions during test
+  running.
+- More fields:
+  - datetime field
+  - date field
+  - time field
+  - timedelta field
+- Contrib/plugins package with:
+  - Database + ResourceModel specialization
+- More serializers:
+  - xml
+  - html/form
+- Handle queryset with fields in Handler
+- Refactor request/app to use a Context object that wraps both objects
+  and things like 'user'
+
 ## License
 
 MIT License
