@@ -1,0 +1,3 @@
+# These requirements exists only for test purposes
+pytest
+WebTest
