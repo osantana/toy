@@ -1,8 +1,7 @@
-from staty import HTTPError, MethodNotAllowed, MethodNotAllowedException, NotFoundException
-
-from toy.exceptions import UnauthorizedException, UnsupportedMediaTypeException
+from .exceptions import UnauthorizedException, UnsupportedMediaTypeException
 from .http import Request, Response, WSGIResponse
 from .routing import Routes
+from .staty import HTTPError, MethodNotAllowed, MethodNotAllowedException, NotFoundException
 
 
 class Application:

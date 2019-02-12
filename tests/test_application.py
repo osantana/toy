@@ -1,12 +1,12 @@
 from unittest.mock import Mock
 
 import pytest
-from staty import BadRequestException
 from webtest import TestApp
 
 from toy.application import Application
 from toy.exceptions import UnauthorizedException
 from toy.http import Request
+from toy.staty import BadRequestException
 
 
 def test_basic_application():

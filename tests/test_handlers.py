@@ -2,11 +2,11 @@ import json
 from unittest.mock import Mock
 
 import pytest
-from staty import MethodNotAllowedException
 
 from toy.exceptions import UnauthorizedException
 from toy.handlers import Handler, ResourceHandler
 from toy.http import Request
+from toy.staty import MethodNotAllowedException
 
 
 def test_basic_handler_arguments():

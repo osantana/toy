@@ -1,10 +1,9 @@
 from io import BytesIO
 
 import pytest
-from accept import MediaType
-from staty import NoContent, Ok
 
-from toy.http import Request, Response, to_title_case
+from toy.http import Request, Response, parse_accept, to_title_case
+from toy.staty import NoContent, Ok
 
 
 @pytest.mark.parametrize('inp,out', [
@@ -37,8 +36,8 @@ def test_http_basic_request(envbuilder, binary_content):
     assert repr(request) == '<Request GET />'
     assert request.content_type == 'application/json'
     assert request.charset == 'iso-8859-1'
-    assert request.accept == [MediaType('application/json')]
-    assert request.accept_charset == [MediaType('iso-8859-1'), MediaType('utf-8', q=0.7)]
+    assert request.accept == ['application/json']
+    assert request.accept_charset == ['iso-8859-1', 'utf-8']
     assert request.data == 'Test'
     assert request.authenticated is False
 
@@ -93,3 +92,17 @@ def test_response_with_no_content_status():
 def test_response_with_extra_http_headers():
     response = Response('', ignored_arg='', http_www_authenticate='Basic realm="Test Endpoint"')
     assert response.headers['WWW-Authenticate'] == 'Basic realm="Test Endpoint"'
+
+
+@pytest.mark.parametrize('header,result', [
+    ('text/plain', ['text/plain']),
+    ('text/plain,text/html', ['text/plain', 'text/html']),
+    ('  text/plain  ,  text/html  ', ['text/plain', 'text/html']),
+    ('text/plain;q=1', ['text/plain']),
+    ('text/plain;q=1,text/html;q=0.7', ['text/plain', 'text/html']),
+    ('  text/plain ; q = 1 , text/html ; q = 0.7', ['text/plain', 'text/html']),
+    ('text/html;q=0.7,text/plain;q=1', ['text/plain', 'text/html']),
+    ('text/html;q=0.7,text/plain;q=1,,,', ['text/plain', 'text/html']),
+])
+def test_util_parse_accept_header(header, result):
+    assert parse_accept(header) == result

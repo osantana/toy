@@ -13,8 +13,8 @@
 # limitations under the License.
 
 
-from staty import exceptions, base
-from staty.utils import camel2snake
+from . import base, exceptions
+from .utils import camel2snake
 
 
 class HTTPStatusMap:
@@ -31,7 +31,7 @@ class HTTPStatusMap:
             raise AttributeError("{!r} object has no attribute {!r}".format(self.__class__.__name__, item)) from exc
 
     def __getitem__(self, item):
-            return self.codes[item]
+        return self.codes[item]
 
     def register(self, http_status_class):
         code = http_status_class.code
