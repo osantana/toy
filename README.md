@@ -24,7 +24,7 @@ A Simple, basic and not suitable for production usage Web Framework
 - More serializers:
   - xml
   - html/form
-- Handle queryset with fields in Handler
+- Handle query strings with fields in Handler
 - Refactor request/app to use a Context object that wraps both objects
   and things like 'user'
 
