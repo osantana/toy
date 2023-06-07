@@ -8,6 +8,12 @@ from .serializers import serializers
 
 
 class Resource:
+    """This object represents an abstraction of a Web Resource.
+     Resource objects contains fields with attributes of several types.
+
+    :param request: An instance of a :class:`toy.http.Request`
+    """
+
     fields = []
     ignore_extra_data = False
 

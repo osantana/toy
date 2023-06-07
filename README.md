@@ -1,6 +1,6 @@
 # Toy Web Framework
 
-A framework designed For Fun.
+A framework designed for fun.
 
 ## Requirements
 
