@@ -11,7 +11,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 staty = "*"
 accept = "*"
 prettyconf = "*"
@@ -37,26 +37,24 @@ target-version = ['py310']
 
 [tool.ruff]
 line-length = 120
+target-version = "py310"
 
 select = [
-    "A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "T", "W",
-    "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT",
-    "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH",
-    "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY",
-    "UP", "YTT",
+    "A", "B", "C", "D", "E", "F", "G", "I", "N", "T", "W", "ARG",
+    "BLE", "COM", "DTZ", "ERA", "EXE", "FBT", "ICN", "INP", "ISC",
+    "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "RUF", "SLF",
+    "TCH", "TID", "TRY", "UP", "YTT",
 ]
 ignore = []
 fixable = [
-    "A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "T", "W",
-    "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT",
-    "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH",
-    "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY",
-    "UP", "YTT",
+    "A", "B", "C", "D", "E", "F", "G", "I", "N", "T", "W", "ARG",
+    "BLE", "COM", "DTZ", "ERA", "EXE", "FBT", "ICN", "INP", "ISC",
+    "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "RUF", "SLF",
+    "TCH", "TID", "TRY", "UP", "YTT",
 ]
-unfixable = []
+unfixable = ["RET"]
 
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-target-version = "py311"
 
 [tool.ruff.mccabe]
 max-complexity = 10
