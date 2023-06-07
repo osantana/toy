@@ -1,9 +1,10 @@
 from typing import Optional
 
+from staty import HTTPStatus, Ok
+
 from .exceptions import UnsupportedMediaTypeException, ValidationError, ValidationException
 from .http import Request, Response
 from .serializers import serializers
-from .staty import HTTPStatus, Ok
 
 
 class Resource:
@@ -134,7 +135,7 @@ class Processor:
         if status is None:
             status = Ok()
 
-        content_type = self.request.accept[0]
+        content_type = self.request.accept[0].media_type
         try:
             serializer = self.serializers[content_type]
         except KeyError:

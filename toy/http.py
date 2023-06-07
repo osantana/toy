@@ -2,7 +2,8 @@ import re
 from io import BytesIO
 from urllib.parse import parse_qs
 
-from .staty import HTTPStatus, NoContent, Ok
+import accept
+from staty import HTTPStatus, NoContent, Ok
 
 HTTP_METHODS = {
     'PATCH',
@@ -22,19 +23,6 @@ def to_title_case(text):
     text = re.sub(r'^HTTP_', '', text)
     splitted = [(w if w == 'WWW' else w.title()) for w in text.split('_')]
     return '-'.join(splitted)
-
-
-def parse_accept(accept):
-    def _q(q):
-        _, v = q.split('=')
-        return float(v.strip())
-
-    terms = [t.strip() for t in accept.split(',') if t.strip()]
-    terms = [t.split(';') + ['q=1'] for t in terms]
-    terms = [(_q(t[1]), t[0].strip()) for t in terms]
-    terms.sort(reverse=True)
-
-    return [t[1] for t in terms]
 
 
 class _AnonymousUser:
@@ -81,8 +69,8 @@ class Request:
         self.headers['Content-Type'] = f'{self.content_type}; {self.charset}'
 
         accept_charset = self.headers.get('Accept-Charset', self.charset).lower()
-        self.accept = parse_accept(self.headers.get('Accept', self.content_type))
-        self.accept_charset = parse_accept(accept_charset)
+        self.accept = accept.parse(self.headers.get('Accept', self.content_type))
+        self.accept_charset = accept.parse(accept_charset)
 
         self.path_arguments = {}
         self.user = _AnonymousUser()

@@ -1,0 +1,22 @@
+version: '3'
+services:
+    api:
+        build: .
+        volumes:
+          - .:/code
+        entrypoint: python3 -m recipes runserver
+        env_file: docker.env
+        links:
+            - postgres
+        ports:
+          - "8080:8080"
+
+    postgres:
+        image: postgres:10
+        ports:
+            - "5432:5432"
+        environment:
+            LC_ALL: C.UTF-8
+            POSTGRES_USER: recipesapi
+            POSTGRES_PASSWORD: recipesapi
+            POSTGRES_DB: recipesapi

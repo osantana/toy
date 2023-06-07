@@ -46,8 +46,11 @@ class JSONSerializer(Serializer):
     content_type = 'application/json'
 
     def load(self, stream: Union[str, bytes], charset='iso-8859-1') -> dict:
+        if isinstance(stream, bytes):
+            stream = stream.decode(charset)
+
         try:
-            return json.loads(stream, encoding=charset)
+            return json.loads(stream)
         except JSONDecodeError:
             raise SerializationException()
 

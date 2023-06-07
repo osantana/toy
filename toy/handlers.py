@@ -1,10 +1,11 @@
 import re
 
+from staty import codes as status, exceptions as error_status
+
 from . import fields
 from .exceptions import ResourceNotFoundException, SerializationException, ValidationException
 from .http import HTTP_METHODS, Request, Response
 from .resources import Processor, Resource
-from .staty import codes as status, exceptions as error_status
 
 
 class Handler:

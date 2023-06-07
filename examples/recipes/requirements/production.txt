@@ -1,0 +1,14 @@
+# Toy Framework requirements
+# opensource project developed by myselg https://github.com/osantana/staty
+staty==1.2.2
+accept==0.1.0
+
+# opensource project developed by myself https://github.com/osantana/prettyconf
+prettyconf==2.0.1
+
+
+psycopg2-binary==2.7.7
+sqlalchemy==1.2.17
+sqlalchemy-searchable==1.0.3
+alembic==1.0.7
+sqlalchemy-utils==0.33.11

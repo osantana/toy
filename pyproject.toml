@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "toy"
+version = "0.1.0"
+description = "A framework designed For Fun"
+authors = ["Osvaldo Santana Neto <osantana@osantana.me>"]
+license = "AGPL"
+readme = "README.md"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+staty = "*"
+accept = "*"
+prettyconf = "*"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "*"
+webtest = "*"
+black = "*"
+ruff = "*"
+pre-commit = "*"
+
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]
