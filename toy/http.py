@@ -81,7 +81,7 @@ class Request:
             self.content_stream = 0
 
         self.content_stream = environ['wsgi.input']
-        self._cached_data = ""
+        self._cached_data = ''
 
     @property
     def data(self):
@@ -99,8 +99,14 @@ class Request:
 
 
 class Response:
-    def __init__(self, data: str, status: HTTPStatus = None, headers=None,
-                 content_type='application/octet-stream; charset=iso-8859-1', **kwargs):
+    def __init__(
+        self,
+        data: str,
+        status: HTTPStatus = None,
+        headers=None,
+        content_type='application/octet-stream; charset=iso-8859-1',
+        **kwargs,
+    ):
 
         if status is None:
             status = Ok()
@@ -139,7 +145,7 @@ class Response:
         return BytesIO(self.data.encode(self.charset))
 
     def __repr__(self):
-        return f'<Response {str(self.status)}>'
+        return f'<Response {self.status!s}>'
 
 
 class WSGIResponse:

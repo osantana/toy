@@ -1,6 +1,7 @@
 import re
 
-from staty import codes as status, exceptions as error_status
+from staty import codes as status
+from staty import exceptions as error_status
 
 from . import fields
 from .exceptions import ResourceNotFoundException, SerializationException, ValidationException
@@ -14,7 +15,7 @@ class Handler:
     def __init__(self, methods=None, **kwargs):
         self.application_args = kwargs
 
-        self._methods = set(m.lower() for m in self.allowed_methods)
+        self._methods = {m.lower() for m in self.allowed_methods}
 
         if methods is not None:
             self._methods.update(m.lower() for m in methods)
@@ -54,9 +55,7 @@ class ErrorResource(Resource):
 
 
 class ErrorResponseResource(Resource):
-    fields = [
-        fields.ResourceListField(name='errors', resource_type=ErrorResource)
-    ]
+    fields = [fields.ResourceListField(name='errors', resource_type=ErrorResource)]
 
     def update(self, errors):
         for field_name, error_list in errors.items():
@@ -163,10 +162,7 @@ class ResourceHandler(Handler):
             return Response('', status=status.NoContent(), content_type=None)
 
         processor = Processor(request)
-        return processor.get_response(
-            data=response_resource.data,
-            status=status.Ok()
-        )
+        return processor.get_response(data=response_resource.data, status=status.Ok())
 
     def put(self, request):
         resource = self.resource_type(
@@ -199,10 +195,7 @@ class ResourceHandler(Handler):
         except ResourceNotFoundException:
             raise error_status.NotFoundException()
 
-        return processor.get_response(
-            data=response_resource.data,
-            status=status.Ok()
-        )
+        return processor.get_response(data=response_resource.data, status=status.Ok())
 
     def patch(self, request):
         resource = self.resource_type(
@@ -225,10 +218,7 @@ class ResourceHandler(Handler):
         except ResourceNotFoundException:
             raise error_status.NotFoundException()
 
-        return processor.get_response(
-            data=response_resource.data,
-            status=status.Ok()
-        )
+        return processor.get_response(data=response_resource.data, status=status.Ok())
 
 
 # noinspection PyUnusedLocal
@@ -248,12 +238,13 @@ def unauthorized_handler(request, error, **kwargs):
         'WWW-Authenticate': error.header,
     }
     processor = Processor(request)
-    return processor.get_response({'errors': ['Not authorized']},
-                                  status=status.Unauthorized(),
-                                  headers=headers)
+    return processor.get_response({'errors': ['Not authorized']}, status=status.Unauthorized(), headers=headers)
 
 
 # noinspection PyUnusedLocal
 def unsupported_media_type_handler(request, error, **kwargs):
-    return Response(f'Unsupported media type {error.media_type!r}',
-                    status.UnsupportedMediaType(), content_type='text/plain')
+    return Response(
+        f'Unsupported media type {error.media_type!r}',
+        status.UnsupportedMediaType(),
+        content_type='text/plain',
+    )

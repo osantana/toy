@@ -7,6 +7,7 @@ from sqlalchemy_utils import create_database, database_exists, drop_database
 from recipes.database import get_db
 from recipes.models import User
 from toy.server import HTTPServer
+
 from .application import RecipesApp, get_app
 
 
@@ -21,7 +22,7 @@ def main():
 
     runserver = subparsers.add_parser('runserver', help='start server')
     runserver.set_defaults(command='runserver')
-    runserver.add_argument('--hostname', metavar="hostname[:port]")
+    runserver.add_argument('--hostname', metavar='hostname[:port]')
 
     initdb = subparsers.add_parser('initdb', help='create and initialize database')
     initdb.add_argument('--reset', action='store_true', help='will destroy your database and re-create it')

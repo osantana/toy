@@ -29,7 +29,7 @@ def test_basic_request_to_app(application, handler):
 
     assert response.status == '200 OK'
     assert response.headers['Content-Type'] == 'text/plain; charset=utf-8'
-    assert response.body == 'Hello!'.encode('utf-8')
+    assert response.body == b'Hello!'
 
 
 def test_request_different_methods_to_same_route_different_handlers(application, get_handler, post_handler):
@@ -39,10 +39,10 @@ def test_request_different_methods_to_same_route_different_handlers(application,
     client = TestApp(application)
 
     response = client.get('/test')
-    assert response.body == 'Hello GET!'.encode('utf-8')
+    assert response.body == b'Hello GET!'
 
     response = client.post('/test')
-    assert response.body == 'Hello POST!'.encode('utf-8')
+    assert response.body == b'Hello POST!'
 
 
 def test_fail_request_methods_not_allowed_in_handlers(application, get_handler, post_handler):
@@ -76,7 +76,7 @@ def test_request_to_not_found_route(application, handler):
     response = app.get('/not-found', status=404)
 
     assert response.status == '404 Not Found'
-    assert response.body == "{'errors': ['Not Found']}".encode('utf-8')
+    assert response.body == b"{'errors': ['Not Found']}"
 
 
 def test_request_to_http_error_route(application):
@@ -91,7 +91,7 @@ def test_request_to_http_error_route(application):
     response = app.get('/bad-request', status=400)
 
     assert response.status == '400 Bad Request'
-    assert response.body == 'Missing required field "foo".'.encode('utf-8')
+    assert response.body == b'Missing required field "foo".'
 
 
 def test_request_to_unauthorized_error(application):
@@ -117,7 +117,7 @@ def test_request_to_internal_error_route(application):
     response = app.get('/error', status=500)
 
     assert response.status == '500 Internal Server Error'
-    assert response.body == 'Internal Server Error'.encode('utf-8')
+    assert response.body == b'Internal Server Error'
 
 
 def test_request_to_internal_error_route_debug_mode(application):

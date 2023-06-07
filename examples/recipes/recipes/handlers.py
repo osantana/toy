@@ -6,6 +6,7 @@ from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from recipes.models import User
 from toy.exceptions import UnauthorizedException
 from toy.handlers import ResourceHandler
+
 from .resources import RatingResource, RecipeResource, RecipesResource
 
 MAX_PAGE_SIZE = 50
@@ -23,7 +24,7 @@ class AuthorizationResourceHandler(ResourceHandler):
         if auth is None:
             return {}
 
-        auth_type, encoded = auth.split(" ", 1)
+        auth_type, encoded = auth.split(' ', 1)
         if auth_type.lower() != 'helloworld':
             return {}
 

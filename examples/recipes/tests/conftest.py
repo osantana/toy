@@ -10,12 +10,12 @@ from recipes.application import get_app
 from recipes.models import Rating, Recipe, User
 
 
-@pytest.fixture
+@pytest.fixture()
 def database_url():
     return 'postgresql://recipesapi:recipesapi@localhost/test_recipesapi'
 
 
-@pytest.fixture
+@pytest.fixture()
 def create_test_db(database_url):
     try:
         drop_database(database_url)
@@ -34,7 +34,7 @@ def create_test_db(database_url):
         break
 
 
-@pytest.fixture
+@pytest.fixture()
 def database(create_test_db, application):
     db = application.extensions['db']
     db.create_tables()
@@ -44,31 +44,29 @@ def database(create_test_db, application):
     db.connection.close()
 
 
-@pytest.fixture
+@pytest.fixture()
 def application(create_test_db, database_url):
     app = get_app(database_url=database_url)
     return app
 
 
-@pytest.fixture
+@pytest.fixture()
 def client(application):
     return TestApp(application)
 
 
-@pytest.fixture
+@pytest.fixture()
 def recipe_data():
     return {
         'name': 'Simple Scrambled Eggs',
         'prep_time': 5,  # minutes
         'difficulty': 1,
         'vegetarian': True,
-        'ratings': [
-            {'value': 5}
-        ]
+        'ratings': [{'value': 5}],
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def recipe(recipe_data):
     recipe = Recipe(
         name=recipe_data['name'],
@@ -81,7 +79,7 @@ def recipe(recipe_data):
     return recipe
 
 
-@pytest.fixture
+@pytest.fixture()
 def saved_recipe(database, recipe):
     database.session.add(recipe)
     database.session.commit()
@@ -89,14 +87,14 @@ def saved_recipe(database, recipe):
     return recipe
 
 
-@pytest.fixture
+@pytest.fixture()
 def saved_rated_recipe(saved_recipe, database):
     saved_recipe.ratings.append(Rating(value=1))
     database.session.commit()
     return saved_recipe
 
 
-@pytest.fixture
+@pytest.fixture()
 def recipes(recipe_data, database):
     objs = []
     for i in range(35):
@@ -113,7 +111,7 @@ def recipes(recipe_data, database):
     return objs
 
 
-@pytest.fixture
+@pytest.fixture()
 def user(database):
     user = User(
         email='test@example.com',
@@ -124,7 +122,7 @@ def user(database):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_credentials(user):
     credentials = b64encode(f'{user.email}:sekret'.encode('ascii')).decode('ascii')
     headers = {
@@ -133,7 +131,7 @@ def user_credentials(user):
     return headers
 
 
-@pytest.fixture
+@pytest.fixture()
 def unknown_user(user):
     credentials = b64encode(f'{user.email}:wrong-password'.encode('ascii')).decode('ascii')
     headers = {

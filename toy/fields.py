@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from .exceptions import ValidationException
@@ -130,7 +129,7 @@ class CharField(Field):
 class IntegerField(Field):
     default_validators = [Type([int])]
 
-    def __init__(self, name, min_value: Optional[int] = None, max_value: Optional[int] = None, *args, **kwargs):
+    def __init__(self, name, min_value: int | None = None, max_value: int | None = None, *args, **kwargs):
         super().__init__(name, min_value=min_value, max_value=max_value, *args, **kwargs)
         self.validators.append(Range(min_value=min_value, max_value=max_value))
 
@@ -180,7 +179,7 @@ class ResourceListField(Field):
         self._value = []
 
     def _set_value(self, new_value):
-        if not isinstance(new_value, (list, tuple)):
+        if not isinstance(new_value, list | tuple):
             return super()._set_value(new_value)  # to be .validate()'d
 
         resources = []

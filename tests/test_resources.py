@@ -8,15 +8,9 @@ from toy.resources import Processor, Resource
 def test_basic_resource():
     # noinspection PyAbstractClass
     class MyResource(Resource):
-        fields = [
-            fields.CharField(name='name', max_length=255),
-            fields.CharField(name='description', max_length=255)
-        ]
+        fields = [fields.CharField(name='name', max_length=255), fields.CharField(name='description', max_length=255)]
 
-    resource = MyResource(
-        name='My Name',
-        description='My Description'
-    )
+    resource = MyResource(name='My Name', description='My Description')
 
     assert isinstance(resource, Resource)
     assert resource['name'] == 'My Name'
@@ -24,9 +18,11 @@ def test_basic_resource():
 
 
 def test_basic_resource_update(resource):
-    resource.update({
-        'name': 'My New Name',
-    })
+    resource.update(
+        {
+            'name': 'My New Name',
+        },
+    )
 
     assert resource['name'] == 'My New Name'
 
@@ -68,19 +64,12 @@ def test_processor_get_response(post_request, json_data):
 
 
 def test_validate_resource_all_fields(basic_resource_class):
-    resource = basic_resource_class(
-        name='Name',
-        description='Description',
-        slug='slug'
-    )
+    resource = basic_resource_class(name='Name', description='Description', slug='slug')
     resource.validate()
 
 
 def test_validate_resource_only_required_fields(basic_resource_class):
-    resource = basic_resource_class(
-        name='Name',
-        slug='slug'
-    )
+    resource = basic_resource_class(name='Name', slug='slug')
     resource.validate()
 
 
@@ -107,12 +96,7 @@ def test_fail_validate_resource_missing_field(basic_resource_class):
 
 
 def test_fail_validate_resource_unknown_field(basic_resource_class):
-    resource = basic_resource_class(
-        name='Name',
-        description='Description',
-        slug='slug',
-        unknown='error'
-    )
+    resource = basic_resource_class(name='Name', description='Description', slug='slug', unknown='error')
     with pytest.raises(ValidationException) as exc_info:
         resource.validate(raise_exception=True)
 
@@ -123,12 +107,7 @@ def test_fail_validate_resource_unknown_field(basic_resource_class):
 
 def test_validate_resource_unknown_extra_field(basic_resource_class):
     basic_resource_class.ignore_extra_data = True
-    resource = basic_resource_class(
-        name='Name',
-        description='Description',
-        slug='slug',
-        unknown='error'
-    )
+    resource = basic_resource_class(name='Name', description='Description', slug='slug', unknown='error')
     assert resource.validate() == {}
 
 
@@ -213,7 +192,7 @@ def test_compound_resource_data_dump(compound_resource):
     assert isinstance(data['sub_item'], dict)
     assert data['sub_item']['name'] == 'My Individual Sub Resource'
 
-    assert isinstance(data['items'], (tuple, list))
+    assert isinstance(data['items'], tuple | list)
 
     item = data['items'][0]
     assert isinstance(item, dict)

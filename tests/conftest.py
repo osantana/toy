@@ -10,7 +10,7 @@ from toy.http import Request, Response
 from toy.resources import Resource
 
 
-@pytest.fixture
+@pytest.fixture()
 def application():
     app = Application()
     app.add_route(r'^/$', lambda req: req)
@@ -55,12 +55,12 @@ def _environ_builder(method, path, input_stream=None, **kwargs):
     return result
 
 
-@pytest.fixture
+@pytest.fixture()
 def envbuilder():
     return _environ_builder
 
 
-@pytest.fixture
+@pytest.fixture()
 def binary_content():
     content = BytesIO()
     content.write(b'Test')
@@ -68,12 +68,12 @@ def binary_content():
     return content
 
 
-@pytest.fixture
+@pytest.fixture()
 def hello_response():
     return Response('Hello!', content_type='text/plain; charset=utf-8')
 
 
-@pytest.fixture
+@pytest.fixture()
 def handler(hello_response):
     # noinspection PyUnusedLocal
     def _hello(request, **kwargs):
@@ -82,7 +82,7 @@ def handler(hello_response):
     return _hello
 
 
-@pytest.fixture
+@pytest.fixture()
 def get_handler(hello_response):
     class GetHandler(Handler):
         allowed_methods = ['get']
@@ -95,7 +95,7 @@ def get_handler(hello_response):
     return GetHandler()
 
 
-@pytest.fixture
+@pytest.fixture()
 def post_handler(hello_response):
     class PostHandler(Handler):
         allowed_methods = ['post']
@@ -108,7 +108,7 @@ def post_handler(hello_response):
     return PostHandler()
 
 
-@pytest.fixture
+@pytest.fixture()
 def basic_resource_class():
     # noinspection PyAbstractClass
     class MyResource(Resource):
@@ -121,11 +121,13 @@ def basic_resource_class():
         @classmethod
         def do_get(cls, request=None, application_args=None):
             resource = cls(request=request, application_args=application_args)
-            resource.update({
-                'name': 'My Name',
-                'description': 'My Description',
-                'slug': 'my-name',
-            })
+            resource.update(
+                {
+                    'name': 'My Name',
+                    'description': 'My Description',
+                    'slug': 'my-name',
+                },
+            )
             return resource
 
         def do_create(self, parent_resource=None):
@@ -134,24 +136,24 @@ def basic_resource_class():
     return MyResource
 
 
-@pytest.fixture
+@pytest.fixture()
 def resource(basic_resource_class):
     return basic_resource_class()
 
 
-@pytest.fixture
+@pytest.fixture()
 def json_data():
-    json_str = '''
+    json_str = """
       {
         "name": "My Name",
         "description": "My Description",
         "slug": "my-name"
       }
-    '''.strip()
+    """.strip()
     return json.dumps(json.loads(json_str))  # strip blanks
 
 
-@pytest.fixture
+@pytest.fixture()
 def post_request(envbuilder):
     data = {
         'name': 'My Name',
@@ -167,7 +169,7 @@ def post_request(envbuilder):
     return Request(environ)
 
 
-@pytest.fixture
+@pytest.fixture()
 def component_resource_class():
     class MyResourceItem(Resource):
         fields = [
@@ -177,7 +179,7 @@ def component_resource_class():
     return MyResourceItem
 
 
-@pytest.fixture
+@pytest.fixture()
 def composite_resource_class(component_resource_class):
     class MyResource(Resource):
         fields = [
@@ -189,7 +191,7 @@ def composite_resource_class(component_resource_class):
     return MyResource
 
 
-@pytest.fixture
+@pytest.fixture()
 def compound_resource(composite_resource_class):
     data = {
         'name': 'My Resource',

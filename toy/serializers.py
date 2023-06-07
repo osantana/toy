@@ -1,6 +1,5 @@
 import json
 from json import JSONDecodeError
-from typing import Type, Union
 
 from .exceptions import SerializationException
 
@@ -21,7 +20,7 @@ class SerializersManager:
     def __init__(self):
         self._serializers = {}
 
-    def register(self, serializer_class: Type[Serializer]):
+    def register(self, serializer_class: type[Serializer]):
         if not serializer_class.content_type:
             raise ValueError('Invalid serializer')
 
@@ -45,7 +44,7 @@ serializers = SerializersManager.get()
 class JSONSerializer(Serializer):
     content_type = 'application/json'
 
-    def load(self, stream: Union[str, bytes], charset='iso-8859-1') -> dict:
+    def load(self, stream: str | bytes, charset='iso-8859-1') -> dict:
         if isinstance(stream, bytes):
             stream = stream.decode(charset)
 
@@ -62,7 +61,7 @@ class JSONSerializer(Serializer):
 class PassThroughSerializer(Serializer):
     content_type = 'application/octet-stream'
 
-    def load(self, stream: Union[str, bytes], charset='iso-8859-1') -> str:
+    def load(self, stream: str | bytes, charset='iso-8859-1') -> str:
         return stream.decode(charset)
 
     def dump(self, obj) -> str:

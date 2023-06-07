@@ -12,9 +12,7 @@ def test_create_recipe(client, database, user_credentials):
         'prep_time': 5,  # minutes
         'difficulty': 1,
         'vegetarian': True,
-        'ratings': [
-            {'value': 5}
-        ]
+        'ratings': [{'value': 5}],
     }
     response = client.post_json('/recipes', recipe_data, headers=user_credentials)
     assert response.status == '201 Created'
@@ -86,7 +84,7 @@ def test_get_recipe(client, saved_recipe, database):
 
 def test_fail_get_unknown_recipe(client, database):
     response = client.get(
-        f'/recipes/deadbeef-c1a1-424d-b45f-52d5641c623c',  # unknown
+        '/recipes/deadbeef-c1a1-424d-b45f-52d5641c623c',  # unknown
         headers={'Accept': 'application/json'},
         status=404,
     )
@@ -109,7 +107,7 @@ def test_delete_recipe(client, saved_recipe, database, user_credentials):
 
 def test_fail_delete_unknown_recipe(client, database, user_credentials):
     response = client.delete_json(
-        f'/recipes/deadbeef-c1a1-424d-b45f-52d5641c623c',  # unknown
+        '/recipes/deadbeef-c1a1-424d-b45f-52d5641c623c',  # unknown
         headers=user_credentials,
         status=404,
     )
@@ -136,7 +134,7 @@ def test_replace_recipe(client, saved_recipe, database, user_credentials):
         'ratings': [
             {'value': 2},
             {'value': 1},
-        ]
+        ],
     }
     response = client.put_json(f'/recipes/{saved_recipe.id}', new_recipe_data, headers=user_credentials)
     assert response.status == '200 OK'
@@ -162,7 +160,7 @@ def test_replace_recipe_with_ratings_in_database(client, saved_rated_recipe, dat
         'ratings': [
             {'value': 5},
             {'value': 4},
-        ]
+        ],
     }
     client.put_json(f'/recipes/{saved_rated_recipe.id}', new_recipe_data, headers=user_credentials)
 
@@ -192,7 +190,7 @@ def test_fail_replace_recipe_with_incomplete_payload(client, saved_rated_recipe,
     assert response.status == '400 Bad Request'
 
     json = response.json
-    assert json['errors'][0].startswith("Invalid resource fields ")
+    assert json['errors'][0].startswith('Invalid resource fields ')
 
     # check old values is preserved
     recipe = database.session.query(Recipe).first()
@@ -222,7 +220,7 @@ def test_change_recipe(client, saved_recipe, database, user_credentials):
         'ratings': [
             {'value': 2},
             {'value': 1},
-        ]
+        ],
     }
     response = client.patch_json(f'/recipes/{saved_recipe.id}', new_recipe_data, headers=user_credentials)
     assert response.status == '200 OK'
@@ -245,7 +243,7 @@ def test_change_recipe_with_ratings_in_database(client, saved_recipe, database, 
         'ratings': [
             {'value': 2},
             {'value': 1},
-        ]
+        ],
     }
     client.patch_json(f'/recipes/{saved_recipe.id}', new_recipe_data, headers=user_credentials)
 
@@ -265,7 +263,7 @@ def test_fail_change_recipe_wrong_credentials(client, saved_recipe, database, un
         'ratings': [
             {'value': 2},
             {'value': 1},
-        ]
+        ],
     }
     response = client.patch_json(f'/recipes/{saved_recipe.id}', new_recipe_data, headers=unknown_user, status=401)
     assert response.status == '401 Unauthorized'
@@ -315,7 +313,7 @@ def test_fail_create_rating_missing_required_field(client, saved_recipe, databas
 
 
 def test_list_recipes(client, recipes, database):
-    response = client.get(f'/recipes', headers={'Accept': 'application/json'})
+    response = client.get('/recipes', headers={'Accept': 'application/json'})
     assert response.status == '200 OK'
 
     json = response.json
@@ -328,16 +326,28 @@ def test_list_recipes(client, recipes, database):
     assert results[0]['name'] == 'Simple Scrambled Eggs #0'
 
 
-@pytest.mark.parametrize('params,offset,limit,search,first_suffix,last_suffix', [
-    ('offset=30', 30, 20, None, '#30', '#34'),
-    ('offset=30&limit=3', 30, 3, None, '#30', '#32'),
-    ('limit=40', 0, 30, None, '#0', '#29'),
-    ('search=eggs', 0, 20, 'eggs', '#0', '#19'),
-    ('search=21', 0, 20, '21', '#21', '#21'),
-])
-def test_list_recipes_query_strings(client, recipes, database, params, offset, search, limit, first_suffix,
-                                    last_suffix):
-    response = client.get(f'/recipes', params, headers={'Accept': 'application/json'})
+@pytest.mark.parametrize(
+    ('params', 'offset', 'limit', 'search', 'first_suffix', 'last_suffix'),
+    [
+        ('offset=30', 30, 20, None, '#30', '#34'),
+        ('offset=30&limit=3', 30, 3, None, '#30', '#32'),
+        ('limit=40', 0, 30, None, '#0', '#29'),
+        ('search=eggs', 0, 20, 'eggs', '#0', '#19'),
+        ('search=21', 0, 20, '21', '#21', '#21'),
+    ],
+)
+def test_list_recipes_query_strings(
+    client,
+    recipes,
+    database,
+    params,
+    offset,
+    search,
+    limit,
+    first_suffix,
+    last_suffix,
+):
+    response = client.get('/recipes', params, headers={'Accept': 'application/json'})
 
     json = response.json
     assert json['offset'] == offset
@@ -347,18 +357,23 @@ def test_list_recipes_query_strings(client, recipes, database, params, offset, s
     assert json['count'] == len(json['results'])
 
     results = json['results']
-    assert results and results[0]['name'].endswith(first_suffix)
-    assert results and results[-1]['name'].endswith(last_suffix)
+    assert results
+    assert results[0]['name'].endswith(first_suffix)
+    assert results
+    assert results[-1]['name'].endswith(last_suffix)
 
 
-@pytest.mark.parametrize('params,error_count', [
-    ('offset=error', 1),
-    ('limit=error', 1),
-    ('offset=error&limit=error', 2),
-    ('offset=0&limit=error', 1),
-])
+@pytest.mark.parametrize(
+    ('params', 'error_count'),
+    [
+        ('offset=error', 1),
+        ('limit=error', 1),
+        ('offset=error&limit=error', 2),
+        ('offset=0&limit=error', 1),
+    ],
+)
 def test_fail_list_recipes_invalid_query_strings(client, recipes, database, params, error_count):
-    response = client.get(f'/recipes', params, headers={'Accept': 'application/json'}, status=400)
+    response = client.get('/recipes', params, headers={'Accept': 'application/json'}, status=400)
     assert response.status == '400 Bad Request'
 
     json = response.json

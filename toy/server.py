@@ -35,9 +35,9 @@ class HTTPServer:
         )
         server.set_app(self.application)
 
-        self._print(f"Serving on {self.hostname}:{self.port} (press ctrl-c to stop)...")
+        self._print(f'Serving on {self.hostname}:{self.port} (press ctrl-c to stop)...')
 
         try:
             server.serve_forever()
         except KeyboardInterrupt:
-            self._print("\nStopping...")
+            self._print('\nStopping...')

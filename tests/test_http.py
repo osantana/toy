@@ -7,11 +7,14 @@ from staty import NoContent, Ok
 from toy.http import Request, Response, to_title_case
 
 
-@pytest.mark.parametrize('inp,out', [
-    ('HTTP_CONTENT_TYPE', 'Content-Type'),
-    ('HTTP_AUTHORIZATION', 'Authorization'),
-    ('HTTP_WWW_AUTHENTICATE', 'WWW-Authenticate'),
-])
+@pytest.mark.parametrize(
+    ('inp', 'out'),
+    [
+        ('HTTP_CONTENT_TYPE', 'Content-Type'),
+        ('HTTP_AUTHORIZATION', 'Authorization'),
+        ('HTTP_WWW_AUTHENTICATE', 'WWW-Authenticate'),
+    ],
+)
 def test_util_upper_case_headers_to_title_case(inp, out):
     assert to_title_case(inp) == out
 
@@ -78,7 +81,7 @@ def test_response_with_different_content_type():
     assert response.data == 'Hello world!'
     assert response.content_type == 'text/plain'
     assert response.charset == 'utf-8'
-    assert response.content_stream.read() == BytesIO('Hello world!'.encode('utf-8')).read()
+    assert response.content_stream.read() == BytesIO(b'Hello world!').read()
 
 
 def test_response_with_no_content_status():

@@ -81,16 +81,16 @@ class Type(Validator):
             return
 
         if not isinstance(field.value, self.allowed_types):
-            return self._error(f'Invalid value type for this field', field)
+            return self._error('Invalid value type for this field', field)
 
 
 class TypeList(Type):
     def validate(self, field):
         value = field.value
 
-        if not isinstance(value, (tuple, list)):
-            return self._error(f'Field must be a list or tuple', field)
+        if not isinstance(value, tuple | list):
+            return self._error('Field must be a list or tuple', field)
 
         for item in value:
             if not isinstance(item, tuple(self.allowed_types)):
-                return self._error(f'Invalid value type for this field', field)
+                return self._error('Invalid value type for this field', field)

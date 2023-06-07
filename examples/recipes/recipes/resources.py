@@ -104,7 +104,7 @@ class RecipeResource(BaseResource):
                     application_args=self.application_args,
                     id=rating.id,
                     value=rating.value,
-                )
+                ),
             )
 
     def save_to_model(self, recipe, db=None):

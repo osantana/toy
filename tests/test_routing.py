@@ -27,7 +27,7 @@ def test_route_with_args(handler):
 
 def test_error_route_with_not_callable_handler():
     with pytest.raises(InvalidRouteHandlerException):
-        Route(r'^$', "not-callable")
+        Route(r'^$', 'not-callable')
 
 
 def test_error_route_with_no_path(handler):
@@ -36,18 +36,14 @@ def test_error_route_with_no_path(handler):
 
 
 def test_basic_routes(handler):
-    routes = Routes([
-        Route(r'^/$', handler)
-    ])
+    routes = Routes([Route(r'^/$', handler)])
 
     assert len(routes) == 1
     assert routes[0].path == '^/$'
 
 
 def test_add_routes(handler):
-    routes = Routes([
-        Route('^/1$', handler)
-    ])
+    routes = Routes([Route('^/1$', handler)])
     routes.add(Route(r'^/2$', handler))
     routes.add_route(r'^/3$', handler)
 
@@ -74,8 +70,8 @@ def test_match_multople_routes_in_routes(handler):
     routes.add_route(r'^/$', handler)
     routes.add_route(r'^/(?P<arg>.*)$', handler)
 
-    assert routes.match("/")[0].path == r'^/$'
-    assert routes.match("/")[1].path == r'^/(?P<arg>.*)$'
+    assert routes.match('/')[0].path == r'^/$'
+    assert routes.match('/')[1].path == r'^/(?P<arg>.*)$'
 
 
 def test_fail_add_same_route_twice(handler):

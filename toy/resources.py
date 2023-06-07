@@ -11,7 +11,7 @@ class Resource:
     fields = []
     ignore_extra_data = False
 
-    def __init__(self, request: Optional[Request] = None, application_args=None, **data):
+    def __init__(self, request: Request | None = None, application_args=None, **data):
         self.request = request
 
         if application_args is None:
@@ -42,7 +42,7 @@ class Resource:
         return self._fields[item].value
 
     def keys(self, include_lazy=True):
-        return set(f.name for f in self._fields.values() if include_lazy or not f.lazy)
+        return {f.name for f in self._fields.values() if include_lazy or not f.lazy}
 
     def update(self, data):
         for key, value in data.items():
@@ -131,7 +131,7 @@ class Processor:
         serializer = self.serializers[self.request.content_type]
         return serializer.load(self.request.data, self.request.charset)
 
-    def get_response(self, data: dict, status: Optional[HTTPStatus] = None, headers=None, **kwargs) -> Response:
+    def get_response(self, data: dict, status: HTTPStatus | None = None, headers=None, **kwargs) -> Response:
         if status is None:
             status = Ok()
 

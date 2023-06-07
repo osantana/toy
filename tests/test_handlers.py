@@ -73,13 +73,17 @@ def test_bad_request_resource_handler_creation_missing_required_argument(envbuil
     request = Request(envbuilder('POST', '/', input_stream=json_data))
     handler = MyResourceHandler()
 
-    expected_error = json.dumps(json.loads("""
+    expected_error = json.dumps(
+        json.loads(
+            """
         {
           "errors": [
             {"field": "slug", "message": "Required field"}
           ]
         }
-    """))
+    """,
+        ),
+    )
 
     response = handler(request)
     assert response.status.code == 400

@@ -1,6 +1,7 @@
 from prettyconf import config
 
 from toy.application import Application
+
 from . import handlers
 from .database import get_db
 

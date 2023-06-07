@@ -1,10 +1,9 @@
 import sys
 from logging.config import fileConfig
 
+from alembic import context
 from prettyconf import config as pretty_config
 from sqlalchemy import create_engine, pool
-
-from alembic import context
 
 sys.path.append('')
 from recipes.database import db  # NOQA
@@ -20,9 +19,7 @@ target_metadata = db.Model.metadata
 
 
 def run_migrations_offline():
-    context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True
-    )
+    context.configure(url=url, target_metadata=target_metadata, literal_binds=True)
 
     with context.begin_transaction():
         context.run_migrations()
@@ -32,9 +29,7 @@ def run_migrations_online():
     connectable = create_engine(url, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
