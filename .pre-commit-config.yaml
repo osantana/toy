@@ -1,0 +1,33 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 'v3.2.0'
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-byte-order-marker
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-symlinks
+      - id: detect-aws-credentials
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+  - repo: https://github.com/grantjenks/blue
+    rev: 'v0.9.1'
+    hooks:
+      - id: blue
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: 'v0.0.271'
+    hooks:
+      - id: ruff
+        args: [ --fix ]
+  - repo: https://github.com/python-poetry/poetry
+    rev: '1.5.1'
+    hooks:
+      - id: poetry-check
+      - id: poetry-lock

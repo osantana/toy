@@ -15,14 +15,14 @@ python = "^3.11"
 staty = "*"
 accept = "*"
 prettyconf = "*"
+jinja2 = "*"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"
 webtest = "*"
-black = "*"
+blue = "*"
 ruff = "*"
 pre-commit = "*"
-
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -30,3 +30,33 @@ addopts = "-ra -q"
 testpaths = [
     "tests",
 ]
+
+[tool.blue]
+line-length = 120
+target-version = ['py310']
+
+[tool.ruff]
+line-length = 120
+
+select = [
+    "A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "T", "W",
+    "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT",
+    "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH",
+    "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY",
+    "UP", "YTT",
+]
+ignore = []
+fixable = [
+    "A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "T", "W",
+    "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT",
+    "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH",
+    "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY",
+    "UP", "YTT",
+]
+unfixable = []
+
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+target-version = "py311"
+
+[tool.ruff.mccabe]
+max-complexity = 10
